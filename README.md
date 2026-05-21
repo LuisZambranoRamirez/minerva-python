@@ -37,3 +37,13 @@ Documentación automática de FastAPI:
 ```text
 http://127.0.0.1:8000/docs
 ```
+
+# Mantenimiento de dependencias
+
+Cuando se instale una nueva librería en el proyecto, actualizar el archivo `requirements.txt` ejecutando:
+
+```powershell
+pip freeze > requirements.txt
+```
+
+Esto guarda todas las dependencias y versiones actuales del entorno virtual para que otros desarrolladores puedan instalar exactamente las mismas versiones.

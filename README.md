@@ -23,7 +23,7 @@ pip install -r requirements.txt
 ## 4. Ejecutar el proyecto
 
 ```powershell
-uvicorn main:app --reload
+uvicorn src.main:app --reload
 ```
 
 ## 5. Abrir en el navegador

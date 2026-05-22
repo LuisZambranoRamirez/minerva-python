@@ -1,11 +1,11 @@
 from abc import ABC, abstractmethod
 from typing import List, Optional
 
-from domain.entities.product.product import Product
-from domain.entities.product.product_id import ProductId
-from domain.entities.product.bar_code import BarCode
-from domain.entities.product.product_quantity import ProductQuantity
-from domain.entities.stock_entry.stock_entry import StockEntry
+from domain.entities.product.Product import Product
+from domain.entities.product.ProductId import ProductId
+from domain.entities.product.BarCode import BarCode
+from domain.entities.product.productQuantity import ProductQuantity
+from domain.entities.product.stockEntry import StockEntry
 
 
 class ProductRepository(ABC):

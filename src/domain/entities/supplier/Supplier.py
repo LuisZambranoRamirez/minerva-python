@@ -34,3 +34,11 @@ class Supplier:
     @property
     def phone_number(self) -> Optional[PhoneNumber]:
         return self._phone_number
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Supplier):
+            return False
+        return self.supplier_name_id == other.supplier_name_id
+
+    def __hash__(self) -> int:
+        return hash(self.supplier_name_id)

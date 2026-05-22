@@ -1,7 +1,6 @@
-from app.domain.entities.shared.Result import Result
+from domain.entities.shared.Result import Result
 from dataclasses import dataclass
 from decimal import Decimal
-from typing import Optional
 
 
 MIN_AMOUNT = Decimal("0")
@@ -13,11 +12,13 @@ class Money:
     value: Decimal
 
     @staticmethod
-    def of(value: Optional[Decimal]):
+    def of(value: Decimal) -> Result["Money"]:
         if value is None:
             return Result.fail("Ingrese el monto.")
 
-        if value.as_tuple().exponent < -MAX_DECIMALS:
+        numDecimals = abs(int(value.as_tuple().exponent))
+
+        if numDecimals > MAX_DECIMALS:
             return Result.fail(
                 f"El monto solo puede tener {MAX_DECIMALS} decimales."
             )

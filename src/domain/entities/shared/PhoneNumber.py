@@ -1,7 +1,6 @@
-from app.domain.entities.shared.Result import Result
+from domain.entities.shared.Result import Result
 from dataclasses import dataclass
-from typing import Optional
-
+import re
 
 
 LENGTH = 9
@@ -12,7 +11,7 @@ class PhoneNumber:
     value: str
     
     @staticmethod
-    def of(value: Optional[str]) -> Result["PhoneNumber"]:
+    def of(value: str) -> Result["PhoneNumber"]:
         if value is None:
             return Result.fail("Ingrese un número de teléfono.")
 
@@ -26,4 +25,4 @@ class PhoneNumber:
                 "El número de teléfono solo puede contener números."
             )
 
-        return Result.success_result(PhoneNumber(value))
+        return Result.success(PhoneNumber(value))

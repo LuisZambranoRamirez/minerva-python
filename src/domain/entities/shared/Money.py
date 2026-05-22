@@ -1,34 +1,28 @@
-from domain.entities.shared.Result import Result
-from dataclasses import dataclass
 from decimal import Decimal
+from typing import Final
 
 
-MIN_AMOUNT = Decimal("0")
-MAX_DECIMALS = 2
-
-
-@dataclass(frozen=True)
 class Money:
-    value: Decimal
+    MIN_AMOUNT: Final[Decimal] = Decimal("0")
+    MAX_DECIMALS: Final[int] = 2
 
-    @staticmethod
-    def of(value: Decimal) -> Result["Money"]:
+    def __init__(self, value: Decimal):
         if value is None:
-            return Result.fail("Ingrese el monto.")
+            raise ValueError("Ingrese el monto.")
 
-        numDecimals = abs(int(value.as_tuple().exponent))
+        num_decimals = abs(int(value.as_tuple().exponent))
 
-        if numDecimals > MAX_DECIMALS:
-            return Result.fail(
-                f"El monto solo puede tener {MAX_DECIMALS} decimales."
+        if num_decimals > self.MAX_DECIMALS:
+            raise ValueError(
+                f"El monto solo puede tener {self.MAX_DECIMALS} decimales."
             )
 
-        if value < MIN_AMOUNT:
-            return Result.fail(
-                f"El monto no puede ser menor que {MIN_AMOUNT}."
+        if value < self.MIN_AMOUNT:
+            raise ValueError(
+                f"El monto no puede ser menor que {self.MIN_AMOUNT}."
             )
 
-        return Result.success(Money(value))
+        self.value: Final[Decimal] = value
 
     def is_greater_than_zero(self) -> bool:
         return self.value > 0

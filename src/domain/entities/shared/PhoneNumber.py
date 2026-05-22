@@ -1,28 +1,21 @@
-from domain.entities.shared.Result import Result
-from dataclasses import dataclass
+from typing import Final
 import re
 
-
-LENGTH = 9
-
-
-@dataclass(frozen=True)
 class PhoneNumber:
-    value: str
-    
-    @staticmethod
-    def of(value: str) -> Result["PhoneNumber"]:
-        if value is None:
-            return Result.fail("Ingrese un número de teléfono.")
+    LENGTH: Final[int] = 9
 
-        if len(value) != LENGTH:
-            return Result.fail(
-                f"El número de teléfono debe tener {LENGTH} dígitos."
+    def __init__(self, value: str):
+        if value is None:
+            raise ValueError("Ingrese un número de teléfono.")
+
+        if len(value) != self.LENGTH:
+            raise ValueError(
+                f"El número de teléfono debe tener {self.LENGTH} dígitos."
             )
 
         if not re.fullmatch(r"\d+", value):
-            return Result.fail(
+            raise ValueError(
                 "El número de teléfono solo puede contener números."
             )
-
-        return Result.success(PhoneNumber(value))
+            
+        self.value: Final[str] = value

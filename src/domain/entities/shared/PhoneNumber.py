@@ -19,3 +19,11 @@ class PhoneNumber:
             )
             
         self.value: Final[str] = value
+    
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, PhoneNumber):
+            return False
+        return self.value == other.value
+
+    def __hash__(self) -> int:
+        return hash(self.value)

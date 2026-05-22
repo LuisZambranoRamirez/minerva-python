@@ -38,3 +38,11 @@ class Money:
 
     def is_zero_or_greater(self) -> bool:
         return self.value >= 0
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Money):
+            return False
+        return self.value == other.value
+
+    def __hash__(self) -> int:
+        return hash(self.value)

@@ -2,9 +2,9 @@ from abc import ABC, abstractmethod
 from typing import List, Optional
 
 from domain.entities.supplier.Supplier import Supplier
-from domain.entities.supplier.supplierid import SupplierId
+from domain.entities.supplier.SupplierId import SupplierId
 from domain.entities.supplier.RUC import RUC
-from domain.entities.shared.phonenumber import PhoneNumber
+from domain.entities.shared.PhoneNumber import PhoneNumber
 
 
 class SupplierRepository(ABC):

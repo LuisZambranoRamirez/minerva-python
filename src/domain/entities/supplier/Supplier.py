@@ -1,6 +1,5 @@
 from datetime import datetime
 from typing import Final, Optional
-from domain.entities.shared.PhoneNumber import PhoneNumber
 from domain.entities.supplier.RUC import RUC
 from domain.entities.supplier.SupplierId import SupplierId
 

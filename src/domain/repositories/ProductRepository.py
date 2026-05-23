@@ -4,8 +4,8 @@ from typing import List, Optional
 from domain.entities.product.Product import Product
 from domain.entities.product.ProductId import ProductId
 from domain.entities.product.BarCode import BarCode
-from domain.entities.product.productQuantity import ProductQuantity
-from domain.entities.product.stockEntry import StockEntry
+from domain.entities.product.ProductQuantity import ProductQuantity
+from domain.entities.product.StockEntry import StockEntry
 
 
 class ProductRepository(ABC):

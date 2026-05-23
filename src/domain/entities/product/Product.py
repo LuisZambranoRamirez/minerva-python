@@ -2,6 +2,7 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Final, Optional
 
+from domain.exceptions.domainException import DomainException 
 from domain.constants.GainStrategy import GainStrategy
 from domain.constants.Category import Category
 from domain.constants.SaleType import SaleType
@@ -27,18 +28,18 @@ class Product:
     ):
         # 1. Validaciones de presencia para Enums obligatorios
         if gain_strategy is None:
-            raise ValueError("Seleccione una estrategia de ganancia.")
+            raise DomainException("Seleccione una estrategia de ganancia.")
         if sale_type is None:
-            raise ValueError("Seleccione el tipo de venta.")
+            raise DomainException("Seleccione el tipo de venta.")
         if category is None:
-            raise ValueError("Seleccione una categoría.")
+            raise DomainException("Seleccione una categoría.")
 
         # 2. Inicialización y validación de los Value Objects base
         self.product_name_id: Final[ProductId] = ProductId(product_name)
         
         gain_money = Money(gain_amount)
         if gain_money.is_zero_or_less():
-            raise ValueError("El monto de ganancia debe ser mayor a cero.")
+            raise DomainException("El monto de ganancia debe ser mayor a cero.")
         self._gain_amount: Money = gain_money
 
         # 3. Validación y asignación del nivel de reposición (Reorder Level)
@@ -46,7 +47,7 @@ class Product:
         if reorder_level is not None:
             reorder_qty = ProductQuantity(reorder_level)
             if sale_type == SaleType.UNIDAD and Math.is_decimal(reorder_qty.value):
-                raise ValueError(
+                raise DomainException(
                     "El nivel de reposición no puede ser decimal para productos vendidos por unidad."
                 )
             self._reorder_level = reorder_qty
@@ -55,7 +56,7 @@ class Product:
         self._bar_code: Optional[BarCode] = None
         if sale_type == SaleType.UNIDAD:
             if bar_code is None:
-                raise ValueError("Ingrese el código de barras para productos vendidos por unidad.")
+                raise DomainException("Ingrese el código de barras para productos vendidos por unidad.")
             self._bar_code = BarCode(bar_code)
 
         # 5. Estado inicial y valores por defecto automáticos
@@ -69,18 +70,18 @@ class Product:
 
     def increase_stock(self, quantity_to_add: Decimal) -> None:
         if quantity_to_add is None:
-            raise ValueError("La cantidad a sumar no puede ser nula.")
+            raise DomainException("La cantidad a sumar no puede ser nula.")
         
         new_stock_value = self._stock.value + quantity_to_add
         self._update_stock(new_stock_value)
 
     def decrease_stock(self, quantity_to_subtract: Decimal) -> None:
         if quantity_to_subtract is None:
-            raise ValueError("La cantidad a restar no puede ser nula.")
+            raise DomainException("La cantidad a restar no puede ser nula.")
             
         new_stock_value = self._stock.value - quantity_to_subtract
         if new_stock_value < 0:
-            raise ValueError("No hay stock suficiente para realizar esta operación.")
+            raise DomainException("No hay stock suficiente para realizar esta operación.")
             
         self._update_stock(new_stock_value)
 
@@ -88,7 +89,7 @@ class Product:
         new_stock = ProductQuantity(new_stock_value)
         
         if self._sale_type == SaleType.UNIDAD and Math.is_decimal(new_stock.value):
-            raise ValueError("Este producto se maneja por unidades. Ingrese una cantidad entera.")
+            raise DomainException("Este producto se maneja por unidades. Ingrese una cantidad entera.")
             
         self._stock = new_stock
 
@@ -96,22 +97,22 @@ class Product:
 
     def validate_bulk_association(self, bulk_product: "Product", quantity: ProductQuantity) -> None:
         if bulk_product is None:
-            raise ValueError("El producto a granel no puede ser nulo.")
+            raise DomainException("El producto a granel no puede ser nulo.")
         if quantity is None:
-            raise ValueError("La cantidad no puede estar vacía.")
+            raise DomainException("La cantidad no puede estar vacía.")
 
         if self == bulk_product:
-            raise ValueError("No es posible asociar un producto consigo mismo.")
+            raise DomainException("No es posible asociar un producto consigo mismo.")
         if self._sale_type != SaleType.UNIDAD:
-            raise ValueError(
+            raise DomainException(
                 f"El producto -- {self.product_name_id} -- se vende por unidad y no permite asociar otro producto."
             )
         if bulk_product.sale_type != SaleType.GRANEL:
-            raise ValueError(
+            raise DomainException(
                 f"El producto -- {bulk_product.product_name_id} -- debe venderse a granel para poder ser asociado."
             )
         if quantity.is_zero_or_less():
-            raise ValueError("La cantidad debe ser mayor a cero.")
+            raise DomainException("La cantidad debe ser mayor a cero.")
 
     def generate_stock_entry(
         self, 

@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Final, Optional
 import uuid
 
+from domain.exceptions.domainException import DomainException 
 from domain.constants.ReasonProductLoss import ReasonProductLoss
 from domain.entities.product.ProductId import ProductId
 from domain.entities.product.ProductQuantity import ProductQuantity
@@ -16,13 +17,13 @@ class InventoryLoss:
     ):
         # 1. Validaciones de presencia y consistencia
         if product_name_id is None:
-            raise ValueError("El nombre del producto no puede estar vacío.")
+            raise DomainException("El nombre del producto no puede estar vacío.")
         
         if quantity is not None and quantity.is_zero_or_less():
-            raise ValueError("La cantidad debe ser mayor a cero.")
+            raise DomainException("La cantidad debe ser mayor a cero.")
             
         if reason is None:
-            raise ValueError("Debe especificar la razón de la pérdida.")
+            raise DomainException("Debe especificar la razón de la pérdida.")
 
         # 2. Asignación de propiedades inmutables (Final)
         self.product_name_id: Final[ProductId] = product_name_id
@@ -47,7 +48,7 @@ class InventoryLoss:
     @reason.setter
     def reason(self, value: ReasonProductLoss) -> None:
         if value is None:
-            raise ValueError("Debe especificar una razón de pérdida válida.")
+            raise DomainException("Debe especificar una razón de pérdida válida.")
         self._reason = value
 
     @property

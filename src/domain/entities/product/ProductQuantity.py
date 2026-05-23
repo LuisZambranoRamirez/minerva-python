@@ -1,3 +1,4 @@
+from domain.exceptions.domainException import DomainException 
 from decimal import Decimal
 from typing import Final, Self
 
@@ -8,18 +9,18 @@ class ProductQuantity:
 
     def __init__(self, value: Decimal):
         if value is None:
-            raise ValueError("Ingrese la cantidad del producto.")
+            raise DomainException("Ingrese la cantidad del producto.")
 
         # Calculamos la cantidad de decimales usando la tupla interna de Decimal
         num_decimals = abs(int(value.as_tuple().exponent))
 
         if num_decimals > self.MAX_DECIMALS:
-            raise ValueError(
+            raise DomainException(
                 f"El monto solo puede tener {self.MAX_DECIMALS} decimales."
             )
 
         if value < self.MIN_AMOUNT:
-            raise ValueError(
+            raise DomainException(
                 f"La cantidad no puede ser menor que {self.MIN_AMOUNT}."
             )
 

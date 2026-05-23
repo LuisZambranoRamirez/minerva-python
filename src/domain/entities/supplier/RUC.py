@@ -1,20 +1,22 @@
 from typing import Final
 import re
 
+from domain.exceptions.domainException import DomainException 
+
 class RUC:
     LENGTH: Final[int] = 11
 
     def __init__(self, value: str):
         if value is None:
-            raise ValueError("El RUC no puede ser nulo.")
+            raise DomainException("El RUC no puede ser nulo.")
 
         if len(value) != self.LENGTH:
-            raise ValueError(
+            raise DomainException(
                 f"El RUC debe tener exactamente {self.LENGTH} caracteres."
             )
 
         if not re.fullmatch(r"\d+", value):
-            raise ValueError("El RUC debe contener solo números.")
+            raise DomainException("El RUC debe contener solo números.")
 
         self._value: Final[str] = value
 

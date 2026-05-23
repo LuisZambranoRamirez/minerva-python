@@ -1,3 +1,4 @@
+from domain.exceptions.domainException import DomainException 
 from typing import Final
 import re
 
@@ -6,18 +7,18 @@ class BarCode:
 
     def __init__(self, value: str):
         if value is None:
-            raise ValueError("Ingrese el código de barras.")
+            raise DomainException("Ingrese el código de barras.")
 
         if not value or not value.strip():
-            raise ValueError("El código de barras no puede estar vacío.")
+            raise DomainException("El código de barras no puede estar vacío.")
 
         if len(value) != self.LENGTH:
-            raise ValueError(
+            raise DomainException(
                 f"El código de barras debe tener {self.LENGTH} dígitos."
             )
 
         if not re.fullmatch(r"\d+", value):
-            raise ValueError("El código de barras solo puede contener números.")
+            raise DomainException("El código de barras solo puede contener números.")
 
         self.value: Final[str] = value
 

@@ -3,6 +3,7 @@ from decimal import Decimal
 from typing import Final, List
 import uuid
 
+from domain.exceptions.domainException import DomainException 
 from domain.constants.PaymentMethod import PaymentMethod
 from domain.entities.customer.CustomerId import CustomerId
 from domain.entities.product.ProductId import ProductId
@@ -21,7 +22,7 @@ class Sale:
     ):
         # 1. Validar e instanciar el identificador del cliente
         if customer_name_id is None:
-            raise ValueError("El cliente es requerido para iniciar una venta.")
+            raise DomainException("El cliente es requerido para iniciar una venta.")
         self._customer_id: Final[CustomerId] = CustomerId(customer_name_id)
 
         # 2. Inicializar colecciones internas
@@ -48,7 +49,7 @@ class Sale:
     def add_payment(self, amount: Decimal, payment_method: PaymentMethod) -> None:
         """Registra un pago parcial o total contra la deuda actual de la venta."""
         if self.is_due_canceled():
-            raise ValueError("La VENTA ya está CANCELADA.")
+            raise DomainException("La VENTA ya está CANCELADA.")
 
         money_amount = Money(amount)
         
@@ -56,7 +57,7 @@ class Sale:
         pay_created = Pay(amount=money_amount, payment_method=payment_method)
 
         if pay_created.amount.value > self.calculate_amount_due():
-            raise ValueError("El PAGO sobrepasa la DEUDA de la VENTA.")
+            raise DomainException("El PAGO sobrepasa la DEUDA de la VENTA.")
 
         self._pays.append(pay_created)
 

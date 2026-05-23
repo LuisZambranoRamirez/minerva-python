@@ -1,3 +1,4 @@
+from domain.exceptions.domainException import DomainException 
 from typing import Final
 import re
 
@@ -9,25 +10,25 @@ class CustomerId:
 
     def __init__(self, value: str):
         if value is None:
-            raise ValueError("El NOMBRE DEL CLIENTE no puede ser nulo.")
+            raise DomainException("El NOMBRE DEL CLIENTE no puede ser nulo.")
 
         value = value.strip()
 
         if value == "":
-            raise ValueError("El NOMBRE DEL CLIENTE no puede estar vacío.")
+            raise DomainException("El NOMBRE DEL CLIENTE no puede estar vacío.")
 
         if len(value) < self.MIN_LENGTH:
-            raise ValueError(
+            raise DomainException(
                 f"El NOMBRE DEL CLIENTE debe tener al menos {self.MIN_LENGTH} caracteres."
             )
 
         if len(value) > self.MAX_LENGTH:
-            raise ValueError(
+            raise DomainException(
                 f"El NOMBRE DEL CLIENTE no puede exceder los {self.MAX_LENGTH} caracteres."
             )
 
         if not self.PATTERN.fullmatch(value):
-            raise ValueError(
+            raise DomainException(
                 "El NOMBRE DEL CLIENTE solo debe contener letras (sin tildes) y números."
             )
 

@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Final, Optional
 import uuid
 
+from domain.exceptions.domainException import DomainException 
 from domain.constants.ReasonProductReturn import ReasonProductReturn
 from domain.entities.product.ProductQuantity import ProductQuantity
 
@@ -9,13 +10,13 @@ class ProductReturn:
     def __init__(self, quantity: ProductQuantity, reason: ReasonProductReturn):
         # 1. Validaciones de presencia y lógica de negocio
         if quantity is None:
-            raise ValueError("La cantidad a devolver no puede estar vacía.")
+            raise DomainException("La cantidad a devolver no puede estar vacía.")
             
         if quantity.is_zero_or_less():
-            raise ValueError("La cantidad a devolver debe ser mayor a cero.")
+            raise DomainException("La cantidad a devolver debe ser mayor a cero.")
             
         if reason is None:
-            raise ValueError("La razón de la devolución no puede estar vacía.")
+            raise DomainException("La razón de la devolución no puede estar vacía.")
 
         # 2. Asignación de propiedades (Inmutables)
         self.quantity: Final[ProductQuantity] = quantity

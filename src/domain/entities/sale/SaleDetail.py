@@ -2,6 +2,7 @@ from decimal import Decimal
 from typing import Final
 import uuid
 
+from domain.exceptions.domainException import DomainException 
 from domain.entities.product.ProductId import ProductId
 from domain.entities.product.ProductQuantity import ProductQuantity
 from domain.entities.shared.Money import Money
@@ -10,17 +11,17 @@ class SaleDetail:
     def __init__(self, product_id: ProductId, quantity: ProductQuantity, price_unit: Money):
         # 1. Validaciones de presencia y reglas de negocio
         if product_id is None:
-            raise ValueError("El PRODUCTO es requerido.")
+            raise DomainException("El PRODUCTO es requerido.")
             
         if quantity is None:
-            raise ValueError("La CANTIDAD DE PRODUCTO no puede estar vacía.")
+            raise DomainException("La CANTIDAD DE PRODUCTO no puede estar vacía.")
         if quantity.is_zero_or_less():
-            raise ValueError("La CANTIDAD DE PRODUCTO debe ser mayor a 0.")
+            raise DomainException("La CANTIDAD DE PRODUCTO debe ser mayor a 0.")
             
         if price_unit is None:
-            raise ValueError("El PRECIO UNITARIO no puede estar vacío.")
+            raise DomainException("El PRECIO UNITARIO no puede estar vacío.")
         if price_unit.is_zero_or_less():
-            raise ValueError("El PRECIO UNITARIO debe ser mayor a 0.")
+            raise DomainException("El PRECIO UNITARIO debe ser mayor a 0.")
 
         # 2. Asignación de propiedades (Inmutables)
         self.product_name_id: Final[ProductId] = product_id

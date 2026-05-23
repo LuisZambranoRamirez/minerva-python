@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Final, Optional
 import uuid
 
+from domain.exceptions.domainException import DomainException 
 from domain.entities.product.ProductId import ProductId
 from domain.entities.product.ProductQuantity import ProductQuantity
 from domain.entities.shared.Money import Money
@@ -18,19 +19,19 @@ class StockEntry:
     ):
         # 1. Validaciones de presencia
         if product_name_id is None:
-            raise ValueError("El nombre del producto no puede estar vacío.")
+            raise DomainException("El nombre del producto no puede estar vacío.")
         if supplier_name_id is None:
-            raise ValueError("El nombre del proveedor no puede estar vacío.")
+            raise DomainException("El nombre del proveedor no puede estar vacío.")
 
         # 2. Validaciones de negocio sobre los objetos de valor
         if price_unit is not None and price_unit.is_zero_or_less():
-            raise ValueError("El precio del producto debe ser mayor a 0.")
+            raise DomainException("El precio del producto debe ser mayor a 0.")
         if quantity is not None and quantity.is_zero_or_less():
-            raise ValueError("La cantidad del producto debe ser mayor a 0.")
+            raise DomainException("La cantidad del producto debe ser mayor a 0.")
 
         # 3. Validación de consistencia de fechas temporales
         if expiration_date is not None and expiration_date <= datetime.now():
-            raise ValueError(
+            raise DomainException(
                 "La fecha de expiración debe ser posterior a la fecha actual."
             )
 

@@ -1,6 +1,7 @@
 from decimal import Decimal
 from typing import Final
 
+from domain.exceptions.domainException import DomainException 
 
 class Money:
     MIN_AMOUNT: Final[Decimal] = Decimal("0")
@@ -8,17 +9,17 @@ class Money:
 
     def __init__(self, value: Decimal):
         if value is None:
-            raise ValueError("Ingrese el monto.")
+            raise DomainException("Ingrese el monto.")
 
         num_decimals = abs(int(value.as_tuple().exponent))
 
         if num_decimals > self.MAX_DECIMALS:
-            raise ValueError(
+            raise DomainException(
                 f"El monto solo puede tener {self.MAX_DECIMALS} decimales."
             )
 
         if value < self.MIN_AMOUNT:
-            raise ValueError(
+            raise DomainException(
                 f"El monto no puede ser menor que {self.MIN_AMOUNT}."
             )
 

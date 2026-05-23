@@ -3,6 +3,7 @@ from decimal import Decimal
 from typing import Final
 import uuid
 
+from domain.exceptions.domainException import DomainException 
 from domain.constants.PaymentMethod import PaymentMethod
 from domain.entities.shared.Money import Money
 
@@ -12,13 +13,13 @@ class Pay:
     def __init__(self, amount: Money, payment_method: PaymentMethod):
         # 1. Validaciones de presencia y negocio
         if payment_method is None:
-            raise ValueError("El método de pago no puede estar vacío.")
+            raise DomainException("El método de pago no puede estar vacío.")
             
         if amount is None:
-            raise ValueError("El monto no puede estar vacío.")
+            raise DomainException("El monto no puede estar vacío.")
             
         if amount.value < self.MIN_AMOUNT:
-            raise ValueError(f"El MONTO debe ser mayor o igual a S/{self.MIN_AMOUNT}")
+            raise DomainException(f"El MONTO debe ser mayor o igual a S/{self.MIN_AMOUNT}")
 
         # 2. Asignación de propiedades de la entidad (Inmutables en este caso)
         self.amount: Final[Money] = amount

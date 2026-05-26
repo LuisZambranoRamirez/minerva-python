@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Final, Optional
 from domain.entities.supplier.RUC import RUC
 from domain.entities.supplier.SupplierId import SupplierId
+from domain.entities.shared.PhoneNumber import PhoneNumber
 
 class Supplier:
     def __init__(self, supplier_name: str, ruc: Optional[str] = None, phone_number: Optional[str] = None):

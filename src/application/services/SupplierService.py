@@ -14,10 +14,6 @@ class SupplierService:  # Implementa conceptualmente SupplierUseCase
     # --------------------- ESCRITURA (COMMANDS) ---------------------
 
     def register(self, supplier_name: str, ruc: Optional[str], phone_number: Optional[str]) -> None:
-        """
-        Registra un nuevo proveedor validando las restricciones de unicidad en el sistema.
-        Levanta ValueError si alguna regla de negocio se rompe.
-        """
         # La instanciación ejecuta todas las validaciones internas del dominio de manera directa
         supplier_created = Supplier(
             supplier_name=supplier_name,
@@ -42,7 +38,6 @@ class SupplierService:  # Implementa conceptualmente SupplierUseCase
         self._supplier_repository.save(supplier_created)
 
     def update_phone_number(self, supplier_name: str, phone_number: str) -> None:
-        """Actualiza el teléfono de un proveedor existente verificando que no esté duplicado."""
         supplier = self.find_by_id(supplier_name)
         if supplier is None:
             raise ValueError("Proveedor no encontrado.")
@@ -58,7 +53,6 @@ class SupplierService:  # Implementa conceptualmente SupplierUseCase
         self._supplier_repository.save(supplier)
 
     def update_ruc(self, supplier_name: str, ruc: str) -> None:
-        """Actualiza el RUC de un proveedor existente verificando que no esté duplicado."""
         supplier = self.find_by_id(supplier_name)
         if supplier is None:
             raise ValueError("Proveedor no encontrado.")
@@ -74,11 +68,9 @@ class SupplierService:  # Implementa conceptualmente SupplierUseCase
     # --------------------- LECTURA (QUERIES) ---------------------
 
     def find_all(self) -> List[Supplier]:
-        """Retorna todos los proveedores registrados."""
         return self._supplier_repository.find_all()
 
     def find_by_id(self, supplier_name: str) -> Optional[Supplier]:
-        """Busca un proveedor por su ID (nombre). Retorna None si no es válido o no existe."""
         try:
             supplier_id = SupplierId(supplier_name)
             return self._supplier_repository.find_by_id(supplier_id)
@@ -86,7 +78,6 @@ class SupplierService:  # Implementa conceptualmente SupplierUseCase
             return None
 
     def find_by_ruc(self, ruc: str) -> Optional[Supplier]:
-        """Busca un proveedor por su RUC. Retorna None si el formato es inválido o no existe."""
         try:
             ruc_vo = RUC(ruc)
             return self._supplier_repository.find_by_ruc(ruc_vo)
@@ -94,7 +85,6 @@ class SupplierService:  # Implementa conceptualmente SupplierUseCase
             return None
 
     def find_by_phone_number(self, phone: str) -> Optional[Supplier]:
-        """Busca un proveedor por su teléfono. Retorna None si el formato es inválido o no existe."""
         try:
             phone_vo = PhoneNumber(phone)
             return self._supplier_repository.find_by_phone_number(phone_vo)

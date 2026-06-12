@@ -1,7 +1,7 @@
 from typing import Final
 import re
 
-from domain.exceptions.domainException import DomainException 
+from domain.exceptions.DomainException import DomainException 
 
 class SupplierId:
     MIN_LENGTH: Final[int] = 3

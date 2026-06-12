@@ -1,4 +1,4 @@
-from domain.exceptions.domainException import DomainException 
+from domain.exceptions.DomainException import DomainException 
 from typing import Final
 import re
 

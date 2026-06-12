@@ -1,4 +1,4 @@
-from domain.exceptions.domainException import DomainException 
+from domain.exceptions.DomainException import DomainException 
 from decimal import Decimal
 from typing import Final, Self
 

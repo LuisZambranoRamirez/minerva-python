@@ -2,7 +2,7 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Final, Optional
 
-from domain.exceptions.domainException import DomainException 
+from domain.exceptions.DomainException import DomainException 
 from domain.constants.GainStrategy import GainStrategy
 from domain.constants.Category import Category
 from domain.constants.SaleType import SaleType
@@ -12,7 +12,7 @@ from domain.entities.product.ProductQuantity import ProductQuantity
 from domain.entities.product.StockEntry import StockEntry
 from domain.entities.shared.Money import Money
 from domain.entities.supplier.SupplierId import SupplierId
-from domain.services.math import Math  
+from domain.services.Math import Math  
 
 
 class Product:

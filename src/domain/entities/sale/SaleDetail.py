@@ -2,7 +2,7 @@ from decimal import Decimal
 from typing import Final
 import uuid
 
-from domain.exceptions.domainException import DomainException 
+from domain.exceptions.DomainException import DomainException 
 from domain.entities.product.ProductId import ProductId
 from domain.entities.product.ProductQuantity import ProductQuantity
 from domain.entities.shared.Money import Money

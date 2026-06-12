@@ -3,7 +3,7 @@ from decimal import Decimal
 from typing import Final, List
 import uuid
 
-from domain.exceptions.domainException import DomainException 
+from domain.exceptions.DomainException import DomainException 
 from domain.constants.PaymentMethod import PaymentMethod
 from domain.entities.customer.CustomerId import CustomerId
 from domain.entities.product.ProductId import ProductId

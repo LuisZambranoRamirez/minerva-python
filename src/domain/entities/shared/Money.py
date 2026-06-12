@@ -1,7 +1,7 @@
 from decimal import Decimal
 from typing import Final
 
-from domain.exceptions.domainException import DomainException 
+from domain.exceptions.DomainException import DomainException 
 
 class Money:
     MIN_AMOUNT: Final[Decimal] = Decimal("0")

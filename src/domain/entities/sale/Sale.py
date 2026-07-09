@@ -1,5 +1,6 @@
 from domain.entities.sale.DTO import SaleDetailDTO
 from domain.entities.sale.DTO import PayDTO
+from domain.entities.sale.DTO import PayData
 from domain.entities.sale.DTO import SaleItem
 from datetime import datetime
 from decimal import Decimal
@@ -200,7 +201,7 @@ class Sale(Entity[SaleId]):
 
     def add_pays(
         self,
-        pay_data: list
+        pay_data: List
     ) -> Result[None]:
 
         if pay_data is None or len(pay_data) == 0:

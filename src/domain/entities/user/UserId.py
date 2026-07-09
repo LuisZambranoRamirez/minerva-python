@@ -1,5 +1,5 @@
 from domain.interfaces.Id import Id
 
 
-class SupplierId(Id[str]):
+class UserId(Id[str]):
     pass

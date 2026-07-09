@@ -3,5 +3,5 @@ from uuid import UUID
 from domain.interfaces.Id import Id
 
 
-class ProductId(Id[UUID]):
+class UserActionId(Id[UUID]):
     pass

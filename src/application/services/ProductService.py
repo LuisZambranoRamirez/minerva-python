@@ -1,26 +1,49 @@
-from datetime import datetime
 from decimal import Decimal
-from typing import List, Optional
+from datetime import datetime
+from typing import Optional
 
 from domain.constants.Category import Category
 from domain.constants.GainStrategy import GainStrategy
+from domain.constants.Permission import Permission
+from domain.constants.Role import Role
 from domain.constants.SaleType import SaleType
-from domain.entities.product.BarCode import BarCode
-from domain.entities.product.ProductId import ProductId
-from domain.entities.product.ProductQuantity import ProductQuantity
 from domain.entities.product.Product import Product
+from domain.entities.stockEntry.StockEntry import StockEntry
+from domain.entities.result.Result import Result
+from domain.exceptions.DomainException import DomainException
+from domain.exceptions.UnauthorizedActionException import UnauthorizedActionException
 from domain.repositories.ProductRepository import ProductRepository
 from domain.repositories.SupplierRepository import SupplierRepository
+from domain.repositories.UserRepository import UserRepository
+from domain.valueObject.BarCode import BarCode
+from domain.valueObject.ProductQuantity import ProductQuantity
+from domain.valueObject.id.AllId import AllId
+from domain.valueObject.id.ProductName import ProductName
+from domain.valueObject.id.UserName import UserName
+from application.services.Service import Service
 
 
-class ProductService:  # Implementa conceptualmente ProductUseCase
+class ProductService(Service):
+
     def __init__(
         self,
+        user_role: Role,
+        user_name: UserName,
+        user_repository: UserRepository,
         product_repository: ProductRepository,
         supplier_repository: SupplierRepository
     ):
+        super().__init__(
+            user_role,
+            user_name,
+            user_repository
+        )
+
         self._product_repository = product_repository
         self._supplier_repository = supplier_repository
+
+
+    # --------------------- WRITE ---------------------
 
     def register_product(
         self,
@@ -30,101 +53,252 @@ class ProductService:  # Implementa conceptualmente ProductUseCase
         reorder_level: Optional[Decimal],
         bar_code: Optional[str],
         sale_type: SaleType,
-        category: Category
-    ) -> None:
-        """
-        Registra un nuevo producto en el sistema validando restricciones de unicidad.
-        Levanta ValueError si las reglas de negocio no se cumplen.
-        """
-        # La instanciación ejecuta todas las validaciones internas que antes hacía Product.create
-        product_created = Product(
-            product_name=product_name,
-            gain_strategy=gain_strategy,
-            gain_amount=gain_amount,
-            sale_type=sale_type,
-            category=category,
-            reorder_level=reorder_level,
-            bar_code=bar_code
+        category: Category,
+        purchased_from_supplier_id: str,
+        purchase_unit_price: Decimal,
+        purchase_quantity: Decimal,
+        purchase_expiration_date: datetime
+    ) -> Result[None]:
+
+        if self.get_user_role.lacks_permission(
+            Permission.PRODUCT_REGISTER
+        ):
+            raise UnauthorizedActionException(
+                "El usuario no tiene permiso para registrar productos."
+            )
+
+        try:
+            product_created = Product(
+                product_name,
+                gain_strategy,
+                gain_amount,
+                reorder_level,
+                bar_code,
+                sale_type,
+                purchase_quantity,
+                category,
+                purchase_unit_price
+            )
+
+            stock_entry_created = StockEntry(
+                product_name,
+                purchased_from_supplier_id,
+                purchase_unit_price,
+                purchase_quantity,
+                purchase_expiration_date
+            )
+
+        except DomainException as e:
+            return Result.failure(str(e))
+
+
+        if self._product_repository.exists_by_id(
+            product_created.get_name_id()
+        ):
+            return Result.failure(
+                "Ya existe un producto con el mismo nombre."
+            )
+
+
+        product_bar_code = product_created.get_bar_code()
+
+        if (
+            product_bar_code is not None
+            and self._product_repository.exists_by_bar_code(
+                product_bar_code
+            )
+        ):
+            return Result.failure(
+                "Ya existe un producto con el mismo código de barras."
+            )
+
+
+        if not self._supplier_repository.exists_by_id(
+            stock_entry_created.supplier_name
+        ):
+            return Result.failure(
+                "El proveedor no esta registrado."
+            )
+
+
+        self._product_repository.register_product(
+            product_created,
+            stock_entry_created
         )
 
-        # Validación de unicidad por ID (Nombre)
-        if self._product_repository.exists_by_id(product_created.product_name_id):
-            raise ValueError("Ya existe un producto con el mismo nombre.")
 
-        # Validación de unicidad por Código de Barras si está presente
-        if product_created.bar_code is not None:
-            if self._product_repository.exists_by_bar_code(product_created.bar_code):
-                raise ValueError("Ya existe un producto con el mismo código de barras.")
+        self._register_user_action(
+            Permission.PRODUCT_REGISTER,
+            product_created.id
+        )
 
-        self._product_repository.save_product(product_created)
+
+        return Result.success(None)
+
+
 
     def register_stock_entry(
         self,
-        product_id: str,
-        supplier_name_id: str,
-        price_unit: Decimal,
+        product_name: str,
+        supplier_name: str,
+        unit_price: Decimal,
         quantity: Decimal,
-        expiration_date: Optional[datetime] = None
-    ) -> None:
-        """Registra una entrada de stock para un producto existente."""
-        product = self.find_product_by_id(product_id)
+        expiration_date: datetime
+    ) -> Result[None]:
+
+        if self.get_user_role.lacks_permission(
+            Permission.PRODUCT_REGISTER_STOCK_ENTRY
+        ):
+            raise UnauthorizedActionException(
+                "El usuario no tiene permiso para registrar entradas de stock."
+            )
+
+
+        try:
+            stock_entry_created = StockEntry(
+                product_name,
+                supplier_name,
+                unit_price,
+                quantity,
+                expiration_date
+            )
+
+        except DomainException as e:
+            return Result.failure(str(e))
+
+
+        try:
+            product = self._product_repository.find_by_id(
+                ProductName(product_name)
+            )
+
+        except DomainException:
+            return Result.failure(
+                "El producto no esta registrado."
+            )
+
+
         if product is None:
-            raise ValueError("El producto no está registrado.")
+            return Result.failure(
+                "El producto no esta registrado."
+            )
 
-        # Genera el objeto de dominio StockEntry aplicando sus validaciones internas
-        stock_entry = product.generate_stock_entry(
-            supplier_name_id=supplier_name_id,
-            price_unit=price_unit,
-            quantity=quantity,
-            expiration_date=expiration_date
+
+        product.process_delivery_from_supplier(
+            stock_entry_created.quantity.value
         )
 
-        self._product_repository.save_stock_entry(stock_entry)
 
-    def register_unit_to_bulk(
+        if not self._supplier_repository.exists_by_id(
+            stock_entry_created.supplier_name
+        ):
+            return Result.failure(
+                "El proveedor no esta registrado."
+            )
+
+
+        self._product_repository.save_stock_entry(
+            stock_entry_created,
+            product
+        )
+
+
+        self._register_user_action(
+            Permission.PRODUCT_REGISTER_STOCK_ENTRY,
+            stock_entry_created.id
+        )
+
+
+        return Result.success(None)
+
+
+
+    # --------------------- READ ---------------------
+
+    def find_product_by_id(
         self,
-        unit_product_id: str,
-        bulk_product_id: str,
-        quantity: Decimal
-    ) -> None:
-        """Asocia un producto vendido por unidades a su equivalente a granel."""
-        unit_product = self.find_product_by_id(unit_product_id)
-        if unit_product is None:
-            raise ValueError("No se encontró el producto vendido por unidad.")
+        product_id: str
+    ) -> Optional[Product]:
 
-        bulk_product = self.find_product_by_id(bulk_product_id)
-        if bulk_product is None:
-            raise ValueError("No se encontró el producto vendido a granel.")
+        if self.get_user_role.lacks_permission(
+            Permission.PRODUCT_FIND_BY_ID
+        ):
+            raise UnauthorizedActionException(
+                "El usuario no tiene permiso para buscar productos por ID."
+            )
 
-        # Instanciamos el Value Object de cantidad para la operación
-        product_quantity = ProductQuantity(quantity)
 
-        # Valida las reglas de asociación (levanta ValueError si falla)
-        unit_product.validate_bulk_association(bulk_product, product_quantity)
+        try:
+            product = self._product_repository.find_by_id(
+                ProductName(product_id)
+            )
 
-        self._product_repository.save_unit_to_bulk(
-            unit_product.product_name_id,
-            bulk_product.product_name_id,
-            product_quantity
+            if product:
+                self._register_user_action(
+                    Permission.PRODUCT_FIND_BY_ID,
+                    product.id
+                )
+
+            return product
+
+
+        except DomainException:
+            return None
+
+
+
+    def find_product_by_bar_code(
+        self,
+        bar_code: str
+    ) -> Optional[Product]:
+
+        if self.get_user_role.lacks_permission(
+            Permission.PRODUCT_FIND_BY_BAR_CODE
+        ):
+            raise UnauthorizedActionException(
+                "El usuario no tiene permiso para buscar productos por código de barras."
+            )
+
+
+        try:
+            product = self._product_repository.find_by_bar_code(
+                BarCode(bar_code)
+            )
+
+
+            if product:
+                self._register_user_action(
+                    Permission.PRODUCT_FIND_BY_BAR_CODE,
+                    product.id
+                )
+
+            return product
+
+
+        except DomainException:
+            return None
+
+
+
+    def find_all_products(
+        self
+    ) -> list[Product]:
+
+        if self.get_user_role.lacks_permission(
+            Permission.PRODUCT_FIND_ALL
+        ):
+            raise UnauthorizedActionException(
+                "El usuario no tiene permiso para buscar todos los productos."
+            )
+
+
+        products = self._product_repository.find_all_products()
+
+
+        self._register_user_action(
+            Permission.PRODUCT_FIND_ALL,
+            AllId()
         )
 
-    def find_product_by_id(self, product_id: str) -> Optional[Product]:
-        """Busca un producto por su identificador. Retorna None si no existe o es inválido."""
-        try:
-            # Si el string no pasa las validaciones de ProductId, se captura el error
-            prod_id = ProductId(product_id)
-            return self._product_repository.find_by_id(prod_id)
-        except ValueError:
-            return None
 
-    def find_product_by_bar_code(self, bar_code: str) -> Optional[Product]:
-        """Busca un producto por su código de barras. Retorna None si no existe o es inválido."""
-        try:
-            b_code = BarCode(bar_code)
-            return self._product_repository.find_by_bar_code(b_code)
-        except ValueError:
-            return None
-
-    def find_all_products(self) -> List[Product]:
-        """Retorna la lista de todos los productos registrados."""
-        return self._product_repository.find_all_products()
+        return products

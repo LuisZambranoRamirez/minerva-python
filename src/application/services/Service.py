@@ -52,5 +52,5 @@ class Service(ABC):
             raise RuntimeError(str(e)) from e
 
     @property
-    def user_role(self) -> Role:
+    def get_user_role(self) -> Role:
         return self._user_role

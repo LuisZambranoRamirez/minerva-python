@@ -51,7 +51,7 @@ class ProductRepository(ABC):
         pass
 
     @abstractmethod
-    def exist_by_bar_code(
+    def exists_by_bar_code(
         self,
         bar_code: BarCode
     ) -> bool:

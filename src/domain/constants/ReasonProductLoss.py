@@ -6,6 +6,5 @@ class ReasonProductLoss(str, Enum):
     VENCIMIENTO = "VENCIMIENTO"
     PERDIDO = "PERDIDO"
     CONSUMO = "CONSUMO"
-    DRAKO = "DRAKO"
     ROBO = "ROBO"
     OTROS = "OTROS"

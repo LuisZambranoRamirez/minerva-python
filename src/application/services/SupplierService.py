@@ -1,92 +1,293 @@
-from typing import List, Optional
+from typing import Optional
 
-from domain.entities.shared.PhoneNumber import PhoneNumber
-from domain.entities.supplier.RUC import RUC
+from application.services.Service import Service
+from domain.constants.Permission import Permission
+from domain.constants.Role import Role
+from domain.entities.result.Result import Result
 from domain.entities.supplier.Supplier import Supplier
-from domain.entities.supplier.SupplierId import SupplierId
+from domain.exceptions.DomainException import DomainException
+from domain.exceptions.UnauthorizedActionException import (
+    UnauthorizedActionException,
+)
 from domain.repositories.SupplierRepository import SupplierRepository
+from domain.repositories.UserRepository import UserRepository
+from domain.valueObject.PhoneNumber import PhoneNumber
+from domain.valueObject.RUC import RUC
+from domain.valueObject.id.AllId import AllId
+from domain.valueObject.id.SupplierName import SupplierName
+from domain.valueObject.id.UserName import UserName
 
 
-class SupplierService:  # Implementa conceptualmente SupplierUseCase
-    def __init__(self, supplier_repository: SupplierRepository):
-        self._supplier_repository = supplier_repository
+class SupplierService(Service):
 
-    # --------------------- ESCRITURA (COMMANDS) ---------------------
-
-    def register(self, supplier_name: str, ruc: Optional[str], phone_number: Optional[str]) -> None:
-        # La instanciación ejecuta todas las validaciones internas del dominio de manera directa
-        supplier_created = Supplier(
-            supplier_name=supplier_name,
-            ruc=ruc,
-            phone_number=phone_number
+    def __init__(
+        self,
+        user_role: Role,
+        user_name: UserName,
+        user_repository: UserRepository,
+        supplier_repository: SupplierRepository,
+    ):
+        super().__init__(
+            user_role,
+            user_name,
+            user_repository,
         )
 
-        # 1. Validación de unicidad por ID de Proveedor
-        if self._supplier_repository.exists_by_id(supplier_created.supplier_name_id):
-            raise ValueError("Ya existe un proveedor con el mismo nombre.")
+        self._supplier_repository = supplier_repository
 
-        # 2. Validación de unicidad por RUC (si viene informado)
-        if supplier_created.ruc is not None:
-            if self._supplier_repository.exists_by_ruc(supplier_created.ruc):
-                raise ValueError("Ya existe un proveedor con el mismo RUC.")
+    # --------------------- WRITE ---------------------
 
-        # 3. Validación de unicidad por Número de Teléfono (si viene informado)
-        if supplier_created.phone_number is not None:
-            if self._supplier_repository.exists_by_phone_number(supplier_created.phone_number):
-                raise ValueError("Ya existe un proveedor con el mismo número de teléfono.")
+    def register(
+        self,
+        supplier_name: str,
+        ruc: Optional[str],
+        phone_number: Optional[str],
+    ) -> Result[None]:
 
-        self._supplier_repository.save(supplier_created)
+        if self.get_user_role.lacks_permission(
+            Permission.SUPPLIER_REGISTER
+        ):
+            raise UnauthorizedActionException(
+                "El usuario no tiene permiso para registrar proveedores."
+            )
 
-    def update_phone_number(self, supplier_name: str, phone_number: str) -> None:
-        supplier = self.find_by_id(supplier_name)
-        if supplier is None:
-            raise ValueError("Proveedor no encontrado.")
+        try:
+            supplier = Supplier(
+                supplier_name,
+                ruc,
+                phone_number,
+            )
 
-        # El método mutador de la entidad valida internamente el formato usando el Value Object
-        supplier.update_phone_number(phone_number)
+        except DomainException as e:
+            return Result.failure(str(e))
 
-        # Validación de unicidad posterior en la base de datos
-        # (Asegúrate de que tu repositorio excluya al ID actual en entornos reales para evitar falsos positivos)
-        if supplier.phone_number is not None and self._supplier_repository.exists_by_phone_number(supplier.phone_number):
-            raise ValueError("Ya existe un proveedor con el mismo número de teléfono.")
-        
+        if self._supplier_repository.exists_by_id(
+            supplier.supplier_name
+        ):
+            return Result.failure(
+                "Ya existe un proveedor con el mismo nombre."
+            )
+
+        if (
+            supplier.ruc is not None
+            and self._supplier_repository.exists_by_ruc(
+                supplier.ruc
+            )
+        ):
+            return Result.failure(
+                "Ya existe un proveedor con el mismo RUC."
+            )
+
+        if (
+            supplier.phone_number is not None
+            and self._supplier_repository.exists_by_phone_number(
+                supplier.phone_number
+            )
+        ):
+            return Result.failure(
+                "Ya existe un proveedor con el mismo número de teléfono."
+            )
+
         self._supplier_repository.save(supplier)
 
-    def update_ruc(self, supplier_name: str, ruc: str) -> None:
-        supplier = self.find_by_id(supplier_name)
+        self._register_user_action(
+            Permission.SUPPLIER_REGISTER,
+            supplier.id,
+        )
+
+        return Result.success(None)
+
+    def update_phone_number(
+        self,
+        supplier_name: str,
+        phone_number: str,
+    ) -> Result[None]:
+
+        if self.get_user_role.lacks_permission(
+            Permission.SUPPLIER_UPDATE_PHONE_NUMBER
+        ):
+            raise UnauthorizedActionException(
+                "El usuario no tiene permiso para actualizar el número de teléfono del proveedor."
+            )
+
+        supplier = self.find_by_phone(phone_number)
+
         if supplier is None:
-            raise ValueError("Proveedor no encontrado.")
+            return Result.failure(
+                "Proveedor no encontrado."
+            )
 
-        # La entidad muta su estado interno y valida la estructura del RUC
-        supplier.update_ruc(ruc)
+        result = supplier.update_phone_number(
+            phone_number
+        )
 
-        if supplier.ruc is not None and self._supplier_repository.exists_by_ruc(supplier.ruc):
-            raise ValueError("Ya existe un proveedor con el mismo RUC.")
+        if result.is_failure():
+            return result
+
+        if (
+            supplier.phone_number is not None
+            and self._supplier_repository.exists_by_phone_number(
+                supplier.phone_number
+            )
+        ):
+            return Result.failure(
+                "Ya existe un proveedor con el mismo número de teléfono."
+            )
 
         self._supplier_repository.save(supplier)
 
-    # --------------------- LECTURA (QUERIES) ---------------------
+        self._register_user_action(
+            Permission.SUPPLIER_UPDATE_PHONE_NUMBER,
+            supplier.id,
+        )
 
-    def find_all(self) -> List[Supplier]:
-        return self._supplier_repository.find_all()
+        return Result.success(None)
 
-    def find_by_id(self, supplier_name: str) -> Optional[Supplier]:
+    def update_ruc(
+        self,
+        supplier_name: str,
+        ruc: str,
+    ) -> Result[None]:
+
+        if self.get_user_role.lacks_permission(
+            Permission.SUPPLIER_UPDATE_RUC
+        ):
+            raise UnauthorizedActionException(
+                "El usuario no tiene permiso para actualizar el RUC del proveedor."
+            )
+
+        supplier = self.find_by_id(supplier_name)
+
+        if supplier is None:
+            return Result.failure(
+                "Proveedor no encontrado."
+            )
+
+        result = supplier.update_ruc(ruc)
+
+        if result.is_failure():
+            return result
+
+        if (
+            supplier.ruc is not None
+            and self._supplier_repository.exists_by_ruc(
+                supplier.ruc
+            )
+        ):
+            return Result.failure(
+                "Ya existe un proveedor con el mismo RUC."
+            )
+
+        self._supplier_repository.save(supplier)
+
+        self._register_user_action(
+            Permission.SUPPLIER_UPDATE_RUC,
+            supplier.id,
+        )
+
+        return Result.success(None)
+
+    # --------------------- READ ---------------------
+
+    def find_all(self) -> list[Supplier]:
+
+        if self.get_user_role.lacks_permission(
+            Permission.SUPPLIER_FIND_ALL
+        ):
+            raise UnauthorizedActionException(
+                "El usuario no tiene permiso para buscar todos los proveedores."
+            )
+
+        suppliers = self._supplier_repository.find_all()
+
+        self._register_user_action(
+            Permission.SUPPLIER_FIND_ALL,
+            AllId(),
+        )
+
+        return suppliers
+
+    def find_by_id(
+        self,
+        supplier_name: str,
+    ) -> Optional[Supplier]:
+
+        if self.get_user_role.lacks_permission(
+            Permission.SUPPLIER_FIND_BY_ID
+        ):
+            raise UnauthorizedActionException(
+                "El usuario no tiene permiso para buscar proveedores por ID."
+            )
+
         try:
-            supplier_id = SupplierId(supplier_name)
-            return self._supplier_repository.find_by_id(supplier_id)
-        except ValueError:
+            supplier_name_obj = SupplierName(
+                supplier_name
+            )
+
+            self._register_user_action(
+                Permission.SUPPLIER_FIND_BY_ID,
+                supplier_name_obj,
+            )
+
+            return self._supplier_repository.find_by_id(
+                supplier_name_obj
+            )
+
+        except DomainException:
             return None
 
-    def find_by_ruc(self, ruc: str) -> Optional[Supplier]:
+    def find_by_ruc(
+        self,
+        ruc: str,
+    ) -> Optional[Supplier]:
+
+        if self._user_role.lacks_permission(
+            Permission.SUPPLIER_FIND_BY_RUC
+        ):
+            raise UnauthorizedActionException(
+                "El usuario no tiene permiso para buscar proveedores por RUC."
+            )
+
         try:
-            ruc_vo = RUC(ruc)
-            return self._supplier_repository.find_by_ruc(ruc_vo)
-        except ValueError:
+            supplier = self._supplier_repository.find_by_ruc(
+                RUC(ruc)
+            )
+
+            if supplier is not None:
+                self._register_user_action(
+                    Permission.SUPPLIER_FIND_BY_RUC,
+                    supplier.id,
+                )
+
+            return supplier
+
+        except DomainException:
             return None
 
-    def find_by_phone_number(self, phone: str) -> Optional[Supplier]:
+    def find_by_phone(
+        self,
+        phone_number: str,
+    ) -> Optional[Supplier]:
+
+        if self._user_role.lacks_permission(
+            Permission.SUPPLIER_UPDATE_PHONE_NUMBER
+        ):
+            raise UnauthorizedActionException(
+                "El usuario no tiene permiso para buscar proveedores por teléfono."
+            )
+
         try:
-            phone_vo = PhoneNumber(phone)
-            return self._supplier_repository.find_by_phone_number(phone_vo)
-        except ValueError:
+            supplier = self._supplier_repository.find_by_phone(
+                PhoneNumber(phone_number)
+            )
+
+            if supplier is not None:
+                self._register_user_action(
+                    Permission.SUPPLIER_UPDATE_PHONE_NUMBER,
+                    supplier.id,
+                )
+
+            return supplier
+
+        except DomainException:
             return None

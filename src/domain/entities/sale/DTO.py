@@ -39,3 +39,6 @@ class PayDTO:
         self.payment_method = payment_method
         self.registration_date = registration_date
 
+class PayData:
+    amount: Decimal
+    payment_method: PaymentMethod

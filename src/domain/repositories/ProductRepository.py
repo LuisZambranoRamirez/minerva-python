@@ -1,52 +1,74 @@
 from abc import ABC, abstractmethod
-from typing import List, Optional
+from typing import List, Optional, Set
 
 from domain.entities.product.Product import Product
 from domain.entities.product.ProductId import ProductId
-from domain.entities.product.BarCode import BarCode
-from domain.entities.product.ProductQuantity import ProductQuantity
-from domain.entities.product.StockEntry import StockEntry
+from domain.entities.stockEntry.StockEntry import StockEntry
+from domain.valueObject.BarCode import BarCode
+from domain.valueObject.ProductQuantity import ProductQuantity
+from domain.valueObject.id.ProductName import ProductName
 
 
 class ProductRepository(ABC):
 
     @abstractmethod
-    def save_product(self, product: Product) -> None:
+    def register_product(
+        self,
+        product: Product,
+        stock_entry: StockEntry
+    ) -> None:
         pass
 
     @abstractmethod
-    def save_stock_entry(self, stock_entry: StockEntry) -> None:
+    def save(
+        self,
+        product: Product
+    ) -> None:
+        pass
+
+    @abstractmethod
+    def save_stock_entry(
+        self,
+        stock_entry: StockEntry,
+        product: Product
+    ) -> None:
         pass
 
     @abstractmethod
     def save_unit_to_bulk(
         self,
-        unit_product_id: ProductId,
-        bulk_product_id: ProductId,
+        unit_product_name: ProductName,
+        bulk_product_name: ProductName,
         quantity: ProductQuantity
     ) -> None:
         pass
 
     @abstractmethod
-    def exists_by_id(self, product_id: ProductId) -> bool:
+    def exists_by_id(
+        self,
+        id: ProductId
+    ) -> bool:
         pass
 
     @abstractmethod
-    def exists_by_bar_code(self, bar_code: BarCode) -> bool:
+    def exist_by_bar_code(
+        self,
+        bar_code: BarCode
+    ) -> bool:
         pass
 
     @abstractmethod
-    def find_by_id(self, product_id: ProductId) -> Optional[Product]:
+    def find_by_id(
+        self,
+        id: ProductId
+    ) -> Optional[Product]:
         pass
 
     @abstractmethod
-    def find_by_bar_code(self, bar_code: BarCode) -> Optional[Product]:
-        pass
-
-    @abstractmethod
-    def find_latest_entry_before_today(
-        self, product_id: ProductId
-    ) -> Optional[StockEntry]:
+    def find_by_bar_code(
+        self,
+        bar_code: BarCode
+    ) -> Optional[Product]:
         pass
 
     @abstractmethod
@@ -55,6 +77,14 @@ class ProductRepository(ABC):
 
     @abstractmethod
     def find_all_entries_by_product_id(
-        self, product_id: ProductId
+        self,
+        id: ProductId
     ) -> List[StockEntry]:
+        pass
+
+    @abstractmethod
+    def find_all_by_ids(
+        self,
+        product_ids: Set[ProductId]
+    ) -> Set[Product]:
         pass

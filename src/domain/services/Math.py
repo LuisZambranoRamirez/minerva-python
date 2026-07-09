@@ -18,3 +18,7 @@ class Math:
     @staticmethod
     def is_negative(number: Decimal) -> bool:
         return number is not None and number < 0
+
+    @staticmethod
+    def is_zero_or_less(number: Decimal) -> bool:
+        return number is not None and number <= Decimal("0")

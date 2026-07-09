@@ -7,7 +7,7 @@ I = TypeVar("I")
 
 class Id(ABC, Generic[I]):
     @abstractmethod
-    def value(self) -> I:
+    def getValue(self) -> I:
         pass
 
     @abstractmethod

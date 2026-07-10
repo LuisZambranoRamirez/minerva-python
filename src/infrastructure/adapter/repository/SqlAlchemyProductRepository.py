@@ -116,7 +116,7 @@ class SqlAlchemyProductRepository(ProductRepository):
         return (
             self.session.query(ProductModel)
             .filter(
-                ProductModel.productnameid == id.get_value
+                ProductModel.productnameid == id.get_value()
             )
             .first()
             is not None
@@ -146,7 +146,7 @@ class SqlAlchemyProductRepository(ProductRepository):
         model = (
             self.session.query(ProductModel)
             .filter(
-                ProductModel.productnameid == id.get_value
+                ProductModel.productnameid == id.get_value()
             )
             .first()
         )
@@ -200,7 +200,7 @@ class SqlAlchemyProductRepository(ProductRepository):
         entries = (
             self.session.query(StockEntryModel)
             .filter(
-                StockEntryModel.productnameid == id.get_value
+                StockEntryModel.productnameid == id.get_value()
             )
             .all()
         )
@@ -217,7 +217,7 @@ class SqlAlchemyProductRepository(ProductRepository):
     ) -> Set[DomainProduct]:
 
         ids = [
-            product_id.get_value
+            product_id.get_value()
             for product_id in product_ids
         ]
 

@@ -55,7 +55,7 @@ class SqlAlchemySupplierRepository(SupplierRepository):
         return (
             self.session.query(SupplierModel)
             .filter(
-                SupplierModel.suppliernameid == id.get_value
+                SupplierModel.suppliernameid == id.get_value()
             )
             .first()
             is not None
@@ -120,7 +120,7 @@ class SqlAlchemySupplierRepository(SupplierRepository):
         supplier = (
             self.session.query(SupplierModel)
             .filter(
-                SupplierModel.suppliernameid == id.get_value
+                SupplierModel.suppliernameid == id.get_value()
             )
             .first()
         )

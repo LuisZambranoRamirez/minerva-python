@@ -77,7 +77,7 @@ class SqlAlchemyUserRepository(UserRepository):
         return (
             self.session.query(UserModel)
             .filter(
-                UserModel.username == id.get_value
+                UserModel.username == id.get_value()
             )
             .first()
             is not None
@@ -109,7 +109,7 @@ class SqlAlchemyUserRepository(UserRepository):
         model = (
             self.session.query(UserModel)
             .filter(
-                UserModel.username == id.get_value
+                UserModel.username == id.get_value()
             )
             .first()
         )

@@ -119,7 +119,7 @@ class SqlAlchemySaleRepository(SaleRepository):
         sales = (
             self.session.query(SaleModel)
             .filter(
-                SaleModel.customernameid == customer_id.get_value
+                SaleModel.customernameid == customer_id.get_value()
             )
             .all()
         )

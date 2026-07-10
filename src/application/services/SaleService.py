@@ -51,7 +51,7 @@ class SaleService(Service):
     def register_sale(
         self,
         customer_id: str,
-        pays: list[PayData],
+        pays: PayData,
         items: list[SaleItem]
     ) -> Result:
 
@@ -75,7 +75,7 @@ class SaleService(Service):
                     "Cliente no encontrado."
                 )
 
-            add_pays_result = sale_created.add_pays(pays)
+            add_pays_result = sale_created._add_payment(pays.amount, pays.payment_method)
 
             if add_pays_result.is_failure():
                 return add_pays_result
@@ -101,11 +101,15 @@ class SaleService(Service):
 
 
             for product in products:
-                product.process_sale(
-                    product_quantities[
-                        product.id
-                    ].value
+                print(product.get_stock().value)
+
+                result = product.process_sale(
+                    product_quantities[product.id].value
                 )
+
+                if result.is_failure():
+                    return result
+                print(product.get_stock().value)
 
 
             self._sale_repository.save(
@@ -131,7 +135,7 @@ class SaleService(Service):
     def add_payment_to_sale(
         self,
         sale_id_str: str,
-        pays: list[PayData]
+        pays: PayData
     ) -> Result:
 
         if self.get_user_role.lacks_permission(
@@ -164,9 +168,7 @@ class SaleService(Service):
             )
 
 
-        add_payment_result = sale.add_pays(
-            pays
-        )
+        add_payment_result = sale._add_payment(pays.amount, pays.payment_method)
 
 
         if add_payment_result.is_failure():

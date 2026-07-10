@@ -48,13 +48,13 @@ class PayDataRequest(BaseModel):
 
 class RegisterSaleRequest(BaseModel):
     customer_id: str
-    pays: list[PayDataRequest]
+    pays: PayDataRequest
     items: list[SaleItemRequest]
 
 
 
 class AddPaymentRequest(BaseModel):
-    pays: list[PayDataRequest]
+    pays: PayDataRequest
 
 
 
@@ -106,13 +106,11 @@ def register_sale(
     ),
 ):
 
-    pays = [
-        PayData(
-            amount=p.amount,
-            payment_method=p.payment_type
+    pays = PayData(
+            amount=request.pays.amount,
+            payment_method=request.pays.payment_type
         )
-        for p in request.pays
-    ]
+    
 
 
     items = [
@@ -156,13 +154,11 @@ def add_payment_to_sale(
     ),
 ):
 
-    pays = [
-        PayData(
-            payment_method=p.payment_type,
-            amount=p.amount
+    pays = PayData(
+            payment_method=request.pays.payment_type,
+            amount=request.pays.amount
         )
-        for p in request.pays
-    ]
+        
 
 
     result = service.add_payment_to_sale(

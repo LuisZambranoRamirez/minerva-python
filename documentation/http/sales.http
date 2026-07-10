@@ -1,0 +1,84 @@
+@host = http://localhost:8000
+@baseUrl = {{host}}
+
+########################################################
+# LOGIN (Obtiene el token)
+########################################################
+# @name token
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "juan",
+  "password": "12345678"
+}
+
+
+########################################################
+# Registrar venta
+########################################################
+
+POST {{baseUrl}}/sales
+Authorization: Bearer {{token.response.body.access_token}}
+Content-Type: application/json
+
+{
+  "customer_id": "Empresa ABC",
+  "pays": 
+    {
+      "payment_type": "EFECTIVO",
+      "amount": 1
+    }
+  ,
+  "items":  [
+    {
+      "product_id": "Coca Cola 500ml",
+      "quantity": 2,
+      "unit_price": 1
+    }  
+  ]
+}
+
+
+########################################################
+# Agregar pago a una venta existente
+########################################################
+# Reemplaza el ID con el generado por tu SaleIdImpl
+
+POST {{baseUrl}}/sales/0906b3ef-7905-4c9a-bb84-ba0d112e9ed5/payments
+Authorization: Bearer {{token.response.body.access_token}}
+Content-Type: application/json
+
+{
+  "pays": 
+    {
+      "payment_type": "EFECTIVO",
+      "amount": 1
+    }
+  
+}
+
+
+########################################################
+# Buscar venta por ID
+########################################################
+# Reemplaza con un SaleId real
+
+GET {{baseUrl}}/sales/0906b3ef-7905-4c9a-bb84-ba0d112e9ed5
+Authorization: Bearer {{token.response.body.access_token}}
+
+
+########################################################
+# Buscar ventas por cliente
+########################################################
+
+GET {{baseUrl}}/sales/customer/Empresa ABC
+Authorization: Bearer {{token.response.body.access_token}}
+
+
+########################################################
+# Obtener todas las ventas
+########################################################
+
+GET {{baseUrl}}/sales
+Authorization: Bearer {{token.response.body.access_token}}

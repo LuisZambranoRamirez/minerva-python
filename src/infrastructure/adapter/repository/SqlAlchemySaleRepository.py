@@ -1,3 +1,4 @@
+from domain.repositories.ProductRepository import ProductRepository
 from domain.entities.sale.Sale import Sale as DomainSale
 from domain.entities.sale.SaleId import SaleId
 from domain.entities.sale.SaleDetailId import SaleDetailId
@@ -26,8 +27,10 @@ class SqlAlchemySaleRepository(SaleRepository):
 
     def __init__(
         self,
+        product_repository: ProductRepository,
         session: Session
     ):
+        self.product_repository = product_repository
         self.session = session
 
 
@@ -38,7 +41,7 @@ class SqlAlchemySaleRepository(SaleRepository):
     ) -> None:
 
         sale_model = SaleModel(
-            saleid=str(sale.id),
+            saleid=sale.id.as_string(),
             customernameid=sale.customer_id.value,
             registrationdate=sale.registration_date
         )
@@ -50,7 +53,7 @@ class SqlAlchemySaleRepository(SaleRepository):
 
             detail_model = SaleDetailModel(
                 saledetailid=detail.sale_detail_id,
-                saleid=str(sale.id),
+                saleid=sale.id.as_string(),
                 productnameid=detail.product_id,
                 quantity=detail.quantity,
                 unitprice=detail.unit_price
@@ -63,7 +66,7 @@ class SqlAlchemySaleRepository(SaleRepository):
 
             pay_model = PayModel(
                 payid=pay.pay_id,
-                saleid=str(sale.id),
+                saleid=sale.id.as_string(),
                 amount=pay.amount,
                 paymentmethod=pay.payment_method,
                 registrationdate=pay.registration_date
@@ -71,20 +74,8 @@ class SqlAlchemySaleRepository(SaleRepository):
 
             self.session.add(pay_model)
 
-
-        quantities = sale.get_product_quantities()
-
         for product in products:
-
-            quantity = quantities.get(
-                product.id
-            )
-
-            if quantity:
-
-                product.process_sale(
-                    quantity.value
-                )
+            self.product_repository.save(product)
 
 
         self.session.commit()
@@ -98,7 +89,7 @@ class SqlAlchemySaleRepository(SaleRepository):
         model = (
             self.session.query(SaleModel)
             .filter(
-                SaleModel.saleid == str(id)
+                SaleModel.saleid == id.as_string()
             )
             .first()
         )
@@ -155,7 +146,7 @@ class SqlAlchemySaleRepository(SaleRepository):
         details = (
             self.session.query(SaleDetailModel)
             .filter(
-                SaleDetailModel.saledetailid == str(id)
+                SaleDetailModel.saledetailid == id.as_string()
             )
             .all()
         )
@@ -208,7 +199,7 @@ class SqlAlchemySaleRepository(SaleRepository):
 
             model = PayModel(
                 payid=pay.pay_id,
-                saleid=str(sale.id),
+                saleid=sale.id.as_string(),
                 amount=pay.amount,
                 paymentmethod=pay.payment_method,
                 registrationdate=pay.registration_date

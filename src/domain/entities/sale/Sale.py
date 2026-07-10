@@ -92,26 +92,27 @@ class Sale(Entity[SaleId]):
                 )
 
             for detail in sale_details:
-                sale_detail = SaleDetail(
-                    detail.product_id,
-                    detail.quantity,
-                    detail.unit_price
+                sale_detail = SaleDetail.restore(
+                    id=detail.saledetailid,
+                    product_name=detail.productnameid,
+                    quantity=detail.quantity,
+                    unit_price=detail.unitprice
                 )
 
                 sale._sale_details[
                     sale_detail.get_product_id()
                 ] = sale_detail
 
-            if pays:
-                for pay in pays:
-                    sale._pays.append(
-                        Pay.restore(
-                            pay.pay_id,
-                            pay.amount,
-                            pay.payment_method,
-                            pay.registration_date
-                        )
+
+            for pay in pays:
+                sale._pays.append(
+                    Pay.restore(
+                        pay.payid,
+                        pay.amount,
+                        pay.paymentmethod,
+                        pay.registrationdate
                     )
+                )
 
             return sale
 
@@ -199,32 +200,6 @@ class Sale(Entity[SaleId]):
 
         return Result.success(None)
 
-    def add_pays(
-        self,
-        pay_data: List
-    ) -> Result[None]:
-
-        if pay_data is None or len(pay_data) == 0:
-            return Result.failure(
-                "La lista de pagos no puede estar vacía."
-            )
-
-        if len(pay_data) != len(PaymentMethod):
-            return Result.failure(
-                "Número de pagos no coincide con el número de métodos de pago."
-            )
-
-        for data in pay_data:
-            result = self._add_payment(
-                data.amount,
-                data.payment_method
-            )
-
-            if result.is_failure():
-                return result
-
-        return Result.success(None)
-
     # ------------------------------------------
 
     def calculate_total(self) -> Money:
@@ -275,7 +250,7 @@ class Sale(Entity[SaleId]):
     def get_pays(self) -> list[PayDTO]:
         return [
             PayDTO(
-                str(pay.id),
+                pay.id.as_string(),
                 pay.amount.value,
                 pay.payment_method,
                 pay.registration_date
@@ -286,7 +261,7 @@ class Sale(Entity[SaleId]):
     def get_sale_details(self) -> list[SaleDetailDTO]:
         return [
             SaleDetailDTO(
-                str(detail.id),
+                detail.id.as_string(),
                 detail.get_product_id().as_string(),
                 detail.get_quantity().value,
                 detail.get_unit_price().value

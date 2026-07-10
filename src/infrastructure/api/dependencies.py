@@ -27,7 +27,7 @@ def get_product_repository() -> ProductRepository:
     return SqlAlchemyProductRepository(SessionLocal())
 
 def get_sale_repository() -> SaleRepository:
-    return SqlAlchemySaleRepository(SessionLocal())
+    return SqlAlchemySaleRepository(get_product_repository(), SessionLocal())
 
 def get_supplier_repository() -> SupplierRepository:
     return SqlAlchemySupplierRepository(SessionLocal())

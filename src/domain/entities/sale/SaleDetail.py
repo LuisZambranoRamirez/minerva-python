@@ -1,3 +1,4 @@
+from decimal import ROUND_HALF_UP
 from decimal import Decimal
 
 from domain.entities.product.ProductId import ProductId
@@ -91,10 +92,22 @@ class SaleDetail(Entity[SaleDetailId]):
 
     def calculate_sub_total(self) -> Money:
         try:
-            return Money(
+            subtotal = (
                 self._unit_price.value *
                 self._quantity.value
             )
+            print("Valor antes de redondear:", subtotal)
+            print("Decimales:", subtotal.as_tuple().exponent)
+
+            subtotal = subtotal.quantize(
+                Decimal("0.01"),
+                rounding=ROUND_HALF_UP
+            )
+
+            print("Valor después de redondear:", subtotal)
+            print("Decimales:", subtotal.as_tuple().exponent)
+
+            return Money(subtotal)
 
         except DomainException as e:
             raise UnexpectedDomainException(

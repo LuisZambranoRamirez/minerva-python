@@ -63,37 +63,3 @@ def decode_token(
 
     except JWTError:
         raise credentials_exception
-
-
-def get_current_user(
-    token: str = Depends(oauth2_scheme),
-) -> CurrentUser:
-
-    payload = decode_token(token)
-
-    username = payload.get("sub")
-    role = payload.get("role")
-
-    if username is None or role is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Información de usuario incompleta.",
-            headers={
-                "WWW-Authenticate": "Bearer"
-            },
-        )
-
-    return CurrentUser(
-        username=UserName(username),
-        role=Role(role),
-    )
-
-class CurrentUser:
-    def __init__(
-        self,
-        username: UserName,
-        role: Role,
-    ):
-        self.username = username
-        self.role = role
-

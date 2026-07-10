@@ -1,3 +1,10 @@
+from domain.constants.Role import Role
+from domain.valueObject.id.UserName import UserName
+from infrastructure.api.Oauth2 import oauth2_scheme
+from fastapi import Depends
+from fastapi import status
+from fastapi import HTTPException
+from infrastructure.api.Oauth2 import decode_token
 from application.services.UserService import UserService
 from domain.interfaces.PasswordHasher import PasswordHasher
 from infrastructure.adapter.repository.SqlAlchemyProductRepository import SqlAlchemyProductRepository
@@ -33,3 +40,37 @@ def get_password_hasher() -> PasswordHasher:
 
 def get_user_service() -> UserService:
     return UserService(get_user_repository(), get_password_hasher())
+
+def get_current_user(
+    token: str = Depends(oauth2_scheme),
+) -> CurrentUser:
+
+    payload = decode_token(token)
+
+    username = payload.get("sub")
+    role = payload.get("role")
+
+    if username is None or role is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Información de usuario incompleta.",
+            headers={
+                "WWW-Authenticate": "Bearer"
+            },
+        )
+
+    return CurrentUser(
+        username=UserName(username),
+        role=Role(role),
+    )
+
+
+class CurrentUser:
+    def __init__(
+        self,
+        username: UserName,
+        role: Role,
+    ):
+        self.username = username
+        self.role = role
+

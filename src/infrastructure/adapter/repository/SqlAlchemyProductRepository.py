@@ -78,8 +78,8 @@ class SqlAlchemyProductRepository(ProductRepository):
     ) -> None:
 
         model = StockEntryModel(
-            stockentryid=stock_entry.id,
-            productnameid=product._product_name,
+            stockentryid=stock_entry.id.as_string(),
+            productnameid=product._product_name.as_string(),
             suppliernameid=stock_entry.supplier_name.value,
             unitprice=stock_entry.unit_price.value,
             quantity=stock_entry.quantity.value,
@@ -87,6 +87,28 @@ class SqlAlchemyProductRepository(ProductRepository):
             expirationdate=stock_entry.expiration_date
         )
 
+        productModel = ProductModel(
+            productnameid=product.get_name_id().value,
+            gainstrategy=product.get_gain_strategy(),
+            gainamount=product.get_gain_amount().value,
+            price=product.get_price().value,
+            stock=product.get_stock().value,
+            saletype=product.get_sale_type(),
+            category=product.get_category(),
+            registrationdate=product.get_registration_date(),
+            reorderlevel = (
+                lvl.value 
+                if (lvl := product.get_reorder_level()) is not None 
+                else None
+            ),
+            barcode = (
+                bc.value 
+                if (bc := product.get_bar_code()) is not None 
+                else None
+            )
+        )
+
+        self.session.merge(productModel)
         self.session.add(model)
         self.session.commit()
 

@@ -85,12 +85,7 @@ class ProductQuantity(ValueObject[Decimal]):
             )
 
     def is_decimal(self) -> bool:
-        exponent = self.value.as_tuple().exponent
-
-        if isinstance(exponent, int):
-            return exponent < 0
-
-        return False
+        return self.value % 1 != 0
 
     def is_integer(self) -> bool:
         return not self.is_decimal()

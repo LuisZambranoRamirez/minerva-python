@@ -183,11 +183,15 @@ class ProductService(Service):
                 "El producto no esta registrado."
             )
 
-
-        product.process_delivery_from_supplier(
+        print(product.get_stock().value)
+        result = product.process_delivery_from_supplier(
             stock_entry_created.quantity.value
         )
+        print(product.get_stock().value)
 
+        if result.is_failure():
+            return result
+        print(product.get_stock().value)
 
         if not self._supplier_repository.exists_by_id(
             stock_entry_created.supplier_name

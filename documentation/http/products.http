@@ -1,0 +1,85 @@
+@host = http://localhost:8000
+@baseUrl = {{host}}
+
+
+########################################################
+# LOGIN (Obtiene el token)
+########################################################
+
+# @name token
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "juan",
+  "password": "12345678"
+}
+
+
+
+########################################################
+# Registrar producto
+########################################################
+
+POST {{baseUrl}}/products
+Authorization: Bearer {{token.response.body.access_token}}
+Content-Type: application/json
+
+{
+  "product_name": "Coca Cola 500ml",
+  "gain_strategy": "PORCENTAJE",
+  "gain_amount": 20,
+  "reorder_level": 10,
+  "bar_code": "1234567891248",
+  "sale_type": "UNIDAD",
+  "category": "BEBIDAS",
+  "purchased_from_supplier_id": "Proveedor ABC",
+  "purchase_unit_price": 2.50,
+  "purchase_quantity": 100,
+  "purchase_expiration_date": "2026-12-31T00:00:00"
+}
+
+
+
+########################################################
+# Registrar entrada de stock
+########################################################
+
+POST {{baseUrl}}/products/stock-entry
+Authorization: Bearer {{token.response.body.access_token}}
+Content-Type: application/json
+
+{
+  "product_name": "Coca Cola 500ml",
+  "supplier_name": "Proveedor ABC",
+  "unit_price": 2.50,
+  "quantity": 50,
+  "expiration_date": "2027-01-31T00:00:00"
+}
+
+
+
+########################################################
+# Buscar producto por nombre
+########################################################
+
+GET {{baseUrl}}/products/Coca Cola 500ml
+Authorization: Bearer {{token.response.body.access_token}}
+
+
+
+########################################################
+# Buscar producto por código de barras
+########################################################
+
+GET {{baseUrl}}/products/barcode/7751234567890
+Authorization: Bearer {{token.response.body.access_token}}
+
+
+
+########################################################
+# Obtener todos los productos
+########################################################
+
+GET {{baseUrl}}/products
+Authorization: Bearer {{token.response.body.access_token}}

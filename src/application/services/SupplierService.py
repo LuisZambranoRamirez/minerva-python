@@ -110,7 +110,7 @@ class SupplierService(Service):
                 "El usuario no tiene permiso para actualizar el número de teléfono del proveedor."
             )
 
-        supplier = self.find_by_phone(phone_number)
+        supplier = self.find_by_id(supplier_name)
 
         if supplier is None:
             return Result.failure(

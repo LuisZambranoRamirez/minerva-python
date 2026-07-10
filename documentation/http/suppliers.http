@@ -1,0 +1,87 @@
+@host = http://localhost:8000
+@baseUrl = {{host}}
+
+########################################################
+# LOGIN (Obtiene el token)
+########################################################
+# @name token
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "juan",
+  "password": "12345678"
+}
+
+
+########################################################
+# Registrar proveedor
+########################################################
+
+POST {{baseUrl}}/suppliers
+Authorization: Bearer {{token.response.body.access_token}}
+Content-Type: application/json
+
+{
+  "supplier_name": "ProveedorABC",
+  "ruc": "12345678912",
+  "phone_number": "999888677"
+}
+
+
+########################################################
+# Actualizar teléfono del proveedor
+########################################################
+
+PUT {{baseUrl}}/suppliers/ProveedorABC/phone
+Authorization: Bearer {{token.response.body.access_token}}
+Content-Type: application/json
+
+{
+  "phone_number": "988777666"
+}
+
+
+########################################################
+# Actualizar RUC del proveedor
+########################################################
+
+PUT {{baseUrl}}/suppliers/ProveedorABC/ruc
+Authorization: Bearer {{token.response.body.access_token}}
+Content-Type: application/json
+
+{
+  "ruc": "20987654321"
+}
+
+
+########################################################
+# Buscar proveedor por nombre
+########################################################
+
+GET {{baseUrl}}/suppliers/Proveedor ABC
+Authorization: Bearer {{token.response.body.access_token}}
+
+
+########################################################
+# Buscar proveedor por RUC
+########################################################
+
+GET {{baseUrl}}/suppliers/ruc/20987654321
+Authorization: Bearer {{token.response.body.access_token}}
+
+
+########################################################
+# Buscar proveedor por teléfono
+########################################################
+
+GET {{baseUrl}}/suppliers/phone/988777666
+Authorization: Bearer {{token.response.body.access_token}}
+
+
+########################################################
+# Obtener todos los proveedores
+########################################################
+
+GET {{baseUrl}}/suppliers
+Authorization: Bearer {{token.response.body.access_token}}

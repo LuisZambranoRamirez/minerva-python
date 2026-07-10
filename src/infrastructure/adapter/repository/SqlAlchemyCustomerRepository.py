@@ -21,7 +21,7 @@ class SqlAlchemyCustomerRepository(CustomerRepository):
     ) -> None:
 
         customer_model = CustomerModel(
-            customernameid=str(customer.id),
+            customernameid=customer.id.as_string(),
             registrationdate=customer.registration_date,
             phonenumber=(
                 customer.phone_number.value

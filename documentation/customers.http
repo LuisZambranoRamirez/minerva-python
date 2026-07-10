@@ -1,0 +1,77 @@
+@host = http://localhost:8000
+@baseUrl = {{host}}
+
+########################################################
+# LOGIN (Obtiene el token)
+########################################################
+# @name token
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "juan",
+  "password": "12345678"
+}
+
+
+########################################################
+# Registrar cliente
+########################################################
+
+POST {{baseUrl}}/customers
+Authorization: Bearer {{token.response.body.access_token}}
+Content-Type: application/json
+
+{
+  "customer_name": "Empresa ABC",
+  "phone_number": "987654321"
+}
+
+########################################################
+# Registrar cliente sin teléfono
+########################################################
+
+POST {{baseUrl}}/customers
+Authorization: Bearer {{token.response.body.access_token}}
+Content-Type: application/json
+
+{
+  "customer_name": "Cliente sin teléfono"
+}
+
+########################################################
+# Obtener todos los clientes
+########################################################
+
+GET {{baseUrl}}/customers
+Authorization: Bearer {{token.response.body.access_token}}
+
+########################################################
+# Buscar cliente por ID
+########################################################
+
+@customerId = Cliente sin teléfono
+
+GET {{baseUrl}}/customers/{{customerId}}
+Authorization: Bearer {{token.response.body.access_token}}
+
+########################################################
+# Buscar cliente por teléfono
+########################################################
+
+@phone = 987654321
+
+GET {{baseUrl}}/customers/phone/{{phone}}
+Authorization: Bearer {{token.response.body.access_token}}
+
+########################################################
+# Actualizar teléfono
+########################################################
+
+PUT {{baseUrl}}/customers/{{customerId}}/phone
+Authorization: Bearer {{token.response.body.access_token}}
+Content-Type: application/json
+
+{
+  "phone_number": "999888777"
+}

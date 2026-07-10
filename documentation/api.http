@@ -15,6 +15,32 @@ Content-Type: application/json
   "password": "12345678",
   "role": "ADMIN"
 }
+### ===========================================
+
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "dni": "78945612",
+  "names": "Ricardo",
+  "last_names": "Pérez Gómez",
+  "username": "Ricardo",
+  "password": "12345678",
+  "role": "VENDEDOR"
+}
+### ===========================================
+
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "dni": "78548958",
+  "names": "Ricardo",
+  "last_names": "Pérez Gómez",
+  "username": "Arjona",
+  "password": "12345678",
+  "role": "ALMACENISTA"
+}
 
 ### Iniciar sesión (ADMIN)
 POST {{baseUrl}}/auth/login
@@ -22,6 +48,8 @@ Content-Type: application/json
 
 {
   "username": "juan",
-  "password": "12345678"
+  "password": "123456"
 }
 
+
+### ===========================================

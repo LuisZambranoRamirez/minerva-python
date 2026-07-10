@@ -53,14 +53,10 @@ class SqlAlchemyUserRepository(UserRepository):
     ) -> None:
 
         model = UserActionModel(
-            useractionid=str(
-                user_action.user_action_id
-            ),
+            useractionid=user_action.user_action_id.as_string(),
             username=user_action.user_name.value,
             permission=user_action.permission,
-            entityid=str(
-                user_action.entity_id
-            ),
+            entityid=user_action.entity_id.as_string(),
             registrationdate=user_action.registration_date
         )
 

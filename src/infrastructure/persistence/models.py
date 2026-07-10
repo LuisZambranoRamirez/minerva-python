@@ -1,7 +1,13 @@
 from typing import Optional
 import datetime
 import decimal
-import enum
+
+from domain.constants.Category import Category as ProductCategoryEnum
+from domain.constants.GainStrategy import GainStrategy as GainStrategyEnum
+from domain.constants.SaleType import SaleType as SaleTypeEnum
+from domain.constants.ReasonProductLoss import ReasonProductLoss as LossReasonEnum
+from domain.constants.PaymentMethod import PaymentMethod as PaymentMethodEnum
+from domain.constants.ReasonProductReturn import ReasonProductReturn as ReturnReasonEnum
 
 from sqlalchemy import Boolean, CHAR, DateTime, Enum, ForeignKeyConstraint, Numeric, PrimaryKeyConstraint, String, UniqueConstraint
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
@@ -9,6 +15,8 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 class Base(DeclarativeBase):
     pass
 
+"""
+import enum
 
 class GainStrategyEnum(str, enum.Enum):
     PORCENTAJE = 'PORCENTAJE'
@@ -23,11 +31,9 @@ class LossReasonEnum(str, enum.Enum):
     ROBO = 'ROBO'
     OTROS = 'OTROS'
 
-
 class PaymentMethodEnum(str, enum.Enum):
     EFECTIVO = 'EFECTIVO'
     DIGITAL = 'DIGITAL'
-
 
 class ProductCategoryEnum(str, enum.Enum):
     BEBIDAS = 'BEBIDAS'
@@ -42,18 +48,16 @@ class ProductCategoryEnum(str, enum.Enum):
     MASCOTAS = 'MASCOTAS'
     OTROS = 'OTROS'
 
-
 class ReturnReasonEnum(str, enum.Enum):
     DAÑADO = 'DAÑADO'
     VENCIDO = 'VENCIDO'
     EQUIVOCACION = 'EQUIVOCACION'
     OTROS = 'OTROS'
 
-
 class SaleTypeEnum(str, enum.Enum):
     UNIDAD = 'UNIDAD'
     GRANEL = 'GRANEL'
-
+"""
 
 class Customer(Base):
     __tablename__ = 'customer'

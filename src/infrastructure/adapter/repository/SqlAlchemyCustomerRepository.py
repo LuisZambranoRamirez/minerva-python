@@ -42,7 +42,7 @@ class SqlAlchemyCustomerRepository(CustomerRepository):
         return (
             self.session.query(CustomerModel)
             .filter(
-                CustomerModel.customernameid == id.as_string
+                CustomerModel.customernameid == id.as_string()
             )
             .first()
             is not None
@@ -72,7 +72,7 @@ class SqlAlchemyCustomerRepository(CustomerRepository):
         customer = (
             self.session.query(CustomerModel)
             .filter(
-                CustomerModel.customernameid == id.as_string
+                CustomerModel.customernameid == id.as_string()
             )
             .first()
         )

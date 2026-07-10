@@ -1,4 +1,3 @@
-from domain.valueObject.id.CustomerName import CustomerName
 from domain.valueObject.PhoneNumber import PhoneNumber
 from domain.entities.customer.CustomerId import CustomerId
 from domain.repositories.CustomerRepository import CustomerRepository

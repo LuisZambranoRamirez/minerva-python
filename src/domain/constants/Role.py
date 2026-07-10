@@ -2,7 +2,7 @@ from domain.constants.Permission import Permission
 from enum import Enum
 
 
-class Role(Enum):
+class Role(str, Enum):
     ADMIN = "ADMIN"
     VENDEDOR = "VENDEDOR"
     ALMACENISTA = "ALMACENISTA"

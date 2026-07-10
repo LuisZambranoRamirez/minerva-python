@@ -1,3 +1,5 @@
+from domain.valueObject.PasswordHash import PasswordHash
+from domain.valueObject.Password import Password
 from abc import ABC, abstractmethod
 
 

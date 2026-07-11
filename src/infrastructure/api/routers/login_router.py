@@ -10,6 +10,18 @@ from pydantic import BaseModel
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
 
+class LoginRequest(BaseModel):
+    username: str
+    password: str
+
+class RegisterRequest(BaseModel):
+    dni: str
+    names: str
+    last_names: str
+    username: str
+    password: str
+    role: Role
+
 @router.post("/login")
 def login(
     request: LoginRequest,
@@ -69,15 +81,3 @@ def register(
         "message": "Usuario registrado correctamente."
     }
 
-
-class LoginRequest(BaseModel):
-    username: str
-    password: str
-
-class RegisterRequest(BaseModel):
-    dni: str
-    names: str
-    last_names: str
-    username: str
-    password: str
-    role: Role

@@ -41,6 +41,16 @@ def get_password_hasher() -> PasswordHasher:
 def get_user_service() -> UserService:
     return UserService(get_user_repository(), get_password_hasher())
 
+
+class CurrentUser:
+    def __init__(
+        self,
+        username: UserName,
+        role: Role,
+    ):
+        self.username = username
+        self.role = role
+
 def get_current_user(
     token: str = Depends(oauth2_scheme),
 ) -> CurrentUser:
@@ -64,13 +74,4 @@ def get_current_user(
         role=Role(role),
     )
 
-
-class CurrentUser:
-    def __init__(
-        self,
-        username: UserName,
-        role: Role,
-    ):
-        self.username = username
-        self.role = role
 

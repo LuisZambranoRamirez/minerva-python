@@ -1,3 +1,5 @@
+from infrastructure.persistence.session import init_database
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from infrastructure.api.exception_handlers import register_exception_handlers
 from infrastructure.api.routers.customer_router import router as customer_router
@@ -8,7 +10,13 @@ from infrastructure.api.routers.supplier_router import router as supplier_router
 
 #from infrastructure.api.routers.product_router import router as product_router
 
-app = FastAPI()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    init_database()
+    yield
+    
+app = FastAPI(lifespan=lifespan)
 
 register_exception_handlers(app)
 

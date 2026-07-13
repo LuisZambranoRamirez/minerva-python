@@ -41,16 +41,3 @@ app.include_router(sale_router)
 app.include_router(supplier_router)
 
 # Cleaned up debug routes
-from sqlalchemy import text
-from infrastructure.persistence.session import SessionLocal
-
-@app.get("/debug/raw-suppliers")
-def raw_suppliers():
-    db = SessionLocal()
-    try:
-        result = db.execute(text("SELECT * FROM supplier")).fetchall()
-        return [{"suppliernameid": r[0], "registrationdate": str(r[1]), "ruc": r[2], "phonenumber": r[3]} for r in result]
-    except Exception as e:
-        return {"error": str(e)}
-    finally:
-        db.close()

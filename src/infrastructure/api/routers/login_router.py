@@ -7,6 +7,8 @@ from fastapi import Depends
 from pydantic import BaseModel
 
 
+from infrastructure.api.dependencies import CurrentUser, get_current_user
+
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
 
@@ -21,6 +23,25 @@ class RegisterRequest(BaseModel):
     username: str
     password: str
     role: Role
+
+@router.get("/me")
+def get_me(
+    current_user: CurrentUser = Depends(get_current_user),
+    service: UserService = Depends(get_user_service)
+):
+    user = service._user_repository.find_by_id(current_user.username)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Usuario no encontrado"
+        )
+    return {
+        "username": user.username.value,
+        "dni": user.dni.value,
+        "names": user.names.value,
+        "last_names": user.last_names.value,
+        "role": user.role.value
+    }
 
 @router.post("/login")
 def login(

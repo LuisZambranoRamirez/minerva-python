@@ -175,7 +175,7 @@ class Sale(Entity[SaleId]):
 
         if self.is_due_canceled():
             return Result.failure(
-                "La VENTA ya esta CANCELADA"
+                "La deuda de la venta ya esta saldada"
             )
 
         try:

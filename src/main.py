@@ -11,12 +11,22 @@ from infrastructure.api.routers.supplier_router import router as supplier_router
 #from infrastructure.api.routers.product_router import router as product_router
 
 
+from fastapi.middleware.cors import CORSMiddleware
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     init_database()
     yield
     
 app = FastAPI(lifespan=lifespan)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 register_exception_handlers(app)
 

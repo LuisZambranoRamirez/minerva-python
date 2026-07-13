@@ -178,8 +178,8 @@ class SqlAlchemySupplierRepository(SupplierRepository):
     ) -> DomainSupplier:
 
         return DomainSupplier.restore(
-            supplier_name=model.suppliernameid,
-            ruc=model.ruc,
-            phone_number=model.phonenumber,
+            supplier_name=model.suppliernameid.strip() if model.suppliernameid else model.suppliernameid,
+            ruc=model.ruc.strip() if model.ruc else model.ruc,
+            phone_number=model.phonenumber.strip() if model.phonenumber else model.phonenumber,
             registration_date=model.registrationdate
         )

@@ -124,7 +124,7 @@ class SqlAlchemyCustomerRepository(CustomerRepository):
     ) -> DomainCustomer:
 
         return DomainCustomer.restore(
-            customer_name=model.customernameid,
+            customer_name=model.customernameid.strip() if model.customernameid else model.customernameid,
             registration_date=model.registrationdate,
-            phone_number=model.phonenumber
+            phone_number=model.phonenumber.strip() if model.phonenumber else model.phonenumber
         )

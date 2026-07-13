@@ -51,8 +51,10 @@ def get_user_repository(db: Session = Depends(get_db)) -> UserRepository:
 def get_password_hasher() -> PasswordHasher:
     return BcryptPasswordHasher()
 
-def get_user_service() -> UserService:
-    return UserService(get_user_repository(), get_password_hasher())
+def get_user_service(
+    user_repo: UserRepository = Depends(get_user_repository)
+) -> UserService:
+    return UserService(user_repo, get_password_hasher())
 
 
 class CurrentUser:

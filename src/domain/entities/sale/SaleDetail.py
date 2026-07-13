@@ -22,7 +22,7 @@ class SaleDetail(Entity[SaleDetailId]):
     ):
         if product_name is None:
             raise DomainException(
-                "El PRODUCTO es requerido."
+                "Debe ingresar el nombre del producto"
             )
 
         if (

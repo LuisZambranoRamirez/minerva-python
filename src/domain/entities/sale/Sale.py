@@ -39,7 +39,7 @@ class Sale(Entity[SaleId]):
 
         if items is None or len(items) == 0:
             raise DomainException(
-                "La venta debe tener al menos un item"
+                "La venta debe tener al menos un producto para poder ser registrado"
             )
 
         for item in items:

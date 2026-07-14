@@ -13,7 +13,19 @@ def register_exception_handlers(app: FastAPI):
     @app.exception_handler(UnauthorizedActionException)
     async def unauthorized_handler(request: Request, exc: UnauthorizedActionException):
         print(exc)
-        
+
+        return JSONResponse(
+            status_code=403,
+            content={
+                "message": str(exc)
+            }
+        )
+
+    @app.exception_handler(Exception)
+    async def global_exception_handler(request: Request, exc: Exception):
+        print(exc)
+
+                
         db = next(get_db())
 
         try:
@@ -33,17 +45,6 @@ def register_exception_handlers(app: FastAPI):
 
         finally:
             db.close()
-
-        return JSONResponse(
-            status_code=403,
-            content={
-                "message": str(exc)
-            }
-        )
-
-    @app.exception_handler(Exception)
-    async def global_exception_handler(request: Request, exc: Exception):
-        print(exc)
 
         return JSONResponse(
             status_code=500,

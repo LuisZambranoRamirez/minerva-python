@@ -1,3 +1,4 @@
+from datetime import timezone
 from datetime import datetime
 from decimal import Decimal
 from typing import Optional
@@ -42,7 +43,7 @@ class StockEntry(Entity[StockEntryId]):
 
         if (
             expiration_date is not None
-            and expiration_date <= datetime.now()
+            and expiration_date <= datetime.now(timezone.utc)
         ):
             raise DomainException(
                 "La fecha de expiración debe ser posterior a la fecha actual."

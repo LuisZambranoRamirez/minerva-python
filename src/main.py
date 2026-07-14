@@ -7,8 +7,7 @@ from infrastructure.api.routers.login_router import router as login_router
 from infrastructure.api.routers.product_router import router as product_router
 from infrastructure.api.routers.sale_router import router as sale_router
 from infrastructure.api.routers.supplier_router import router as supplier_router
-
-#from infrastructure.api.routers.product_router import router as product_router
+from fastapi.middleware.cors import CORSMiddleware
 
 
 @asynccontextmanager
@@ -19,6 +18,18 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 register_exception_handlers(app)
+
+origins = [
+    "https://minerva-frontend-eosin.vercel.app"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],      # GET, POST, PUT, DELETE, etc.
+    allow_headers=["*"],      # Todos los headers
+)
 
 @app.get('/')
 def home():

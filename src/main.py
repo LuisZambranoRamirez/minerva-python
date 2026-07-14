@@ -10,12 +10,22 @@ from infrastructure.api.routers.supplier_router import router as supplier_router
 from fastapi.middleware.cors import CORSMiddleware
 
 
+from fastapi.middleware.cors import CORSMiddleware
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     init_database()
     yield
     
 app = FastAPI(lifespan=lifespan)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 register_exception_handlers(app)
 
@@ -40,3 +50,5 @@ app.include_router(customer_router)
 app.include_router(product_router)
 app.include_router(sale_router)
 app.include_router(supplier_router)
+
+# Cleaned up debug routes

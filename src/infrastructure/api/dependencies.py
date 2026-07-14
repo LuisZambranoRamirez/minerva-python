@@ -20,26 +20,41 @@ from infrastructure.adapter.repository.SqlAlchemyUserRepository import SqlAlchem
 from infrastructure.persistence.session import SessionLocal
 from infrastructure.adapter.repository.SqlAlchemyCustomerRepository import SqlAlchemyCustomerRepository
 
-def get_customer_repository() -> CustomerRepository:
-    return SqlAlchemyCustomerRepository(SessionLocal())
+from typing import Generator
+from sqlalchemy.orm import Session
 
-def get_product_repository() -> ProductRepository:
-    return SqlAlchemyProductRepository(SessionLocal())
+def get_db() -> Generator[Session, None, None]:
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
-def get_sale_repository() -> SaleRepository:
-    return SqlAlchemySaleRepository(get_product_repository(), SessionLocal())
+def get_customer_repository(db: Session = Depends(get_db)) -> CustomerRepository:
+    return SqlAlchemyCustomerRepository(db)
 
-def get_supplier_repository() -> SupplierRepository:
-    return SqlAlchemySupplierRepository(SessionLocal())
+def get_product_repository(db: Session = Depends(get_db)) -> ProductRepository:
+    return SqlAlchemyProductRepository(db)
 
-def get_user_repository() -> UserRepository:
-    return SqlAlchemyUserRepository(SessionLocal())
+def get_sale_repository(
+    product_repo: ProductRepository = Depends(get_product_repository),
+    db: Session = Depends(get_db)
+) -> SaleRepository:
+    return SqlAlchemySaleRepository(product_repo, db)
+
+def get_supplier_repository(db: Session = Depends(get_db)) -> SupplierRepository:
+    return SqlAlchemySupplierRepository(db)
+
+def get_user_repository(db: Session = Depends(get_db)) -> UserRepository:
+    return SqlAlchemyUserRepository(db)
 
 def get_password_hasher() -> PasswordHasher:
     return BcryptPasswordHasher()
 
-def get_user_service() -> UserService:
-    return UserService(get_user_repository(), get_password_hasher())
+def get_user_service(
+    user_repo: UserRepository = Depends(get_user_repository)
+) -> UserService:
+    return UserService(user_repo, get_password_hasher())
 
 
 class CurrentUser:

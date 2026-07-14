@@ -38,5 +38,5 @@ class Name(ValueObject[str]):
                 f"El NOMBRE no puede exceder los {max_length} caracteres."
             )
 
-        if not re.match(r"^[A-Za-zÁÉÍÓÚáéíóúÑñ ]+$", value):
-            raise DomainException("El NOMBRE solo debe contener letras.")
+        if not re.match(r"^[A-Za-zÁÉÍÓÚáéíóúÑñ \.\-\,]+$", value):
+            raise DomainException("El NOMBRE solo debe contener letras, puntos, comas o guiones.")

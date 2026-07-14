@@ -11,6 +11,7 @@ from domain.constants.ReasonProductReturn import ReasonProductReturn as ReturnRe
 
 from sqlalchemy import Boolean, CHAR, DateTime, Enum, ForeignKeyConstraint, Numeric, PrimaryKeyConstraint, String, UniqueConstraint
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+from sqlalchemy import Column, Integer, String, Text
 
 class Base(DeclarativeBase):
     pass
@@ -58,6 +59,25 @@ class SaleTypeEnum(str, enum.Enum):
     UNIDAD = 'UNIDAD'
     GRANEL = 'GRANEL'
 """
+
+class ExceptionLog(Base):
+    __tablename__ = "exception_logs"
+
+    id = Column(Integer, primary_key=True, index=True)
+
+    error_type = Column(String(255), nullable=False)
+    message = Column(Text, nullable=False)
+
+    path = Column(String(500), nullable=True)
+    method = Column(String(20), nullable=True)
+
+    traceback = Column(Text, nullable=True)
+
+    created_at = Column(
+        DateTime(timezone=True),
+        default=lambda: datetime.datetime.now(datetime.timezone.utc),
+        nullable=False
+    )
 
 class Customer(Base):
     __tablename__ = 'customer'

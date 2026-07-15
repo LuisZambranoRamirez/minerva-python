@@ -8,7 +8,7 @@ DATABASE_URL = os.getenv("POSTGRES_URL_NON_POOLING")
 
 if not DATABASE_URL:
     print("POSTGRES_URL_NON_POOLING no configurada. Iniciando con base de datos local.")
-    DATABASE_URL = "postgresql+psycopg://postgres:Drakotako147258369#@localhost/apolo"
+    DATABASE_URL = "postgresql+psycopg://postgres:drakotako1234@localhost/apolo"
 
 else:
     print("Conectando a Supabase PostgreSQL")

@@ -241,6 +241,48 @@ def register_product_return(
 # =========================
 
 
+@router.get("/inventory-loss")
+def find_all_inventory_losses(
+    service: ProductService = Depends(
+        get_product_service_with_user
+    ),
+):
+    losses = service.find_all_inventory_losses()
+
+    return [
+        {
+            "id": loss.id.as_string(),
+            "product_name": loss.product_name.value,
+            "quantity": loss.quantity.value,
+            "reason": loss.reason.value,
+            "observation": loss.observation,
+            "registration_date": loss.registration_date,
+        }
+        for loss in losses
+    ]
+
+
+@router.get("/product-return")
+def find_all_product_returns(
+    service: ProductService = Depends(
+        get_product_service_with_user
+    ),
+):
+    returns = service.find_all_product_returns()
+
+    return [
+        {
+            "id": product_return.id.as_string(),
+            "product_name": product_return.product_name.value,
+            "quantity": product_return.quantity.value,
+            "reason": product_return.reason.value,
+            "sale_detail_id": product_return.sale_detail_id,
+            "registration_date": product_return.registration_date,
+        }
+        for product_return in returns
+    ]
+
+
 @router.get("/{product_id}")
 def find_product_by_id(
     product_id: str,

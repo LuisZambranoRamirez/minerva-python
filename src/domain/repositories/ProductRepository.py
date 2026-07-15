@@ -94,6 +94,14 @@ class ProductRepository(ABC):
         pass
 
     @abstractmethod
+    def find_all_inventory_losses(self) -> List[InventoryLoss]:
+        pass
+
+    @abstractmethod
+    def find_all_product_returns(self) -> List[ProductReturn]:
+        pass
+
+    @abstractmethod
     def find_all_entries_by_product_id(
         self,
         id: ProductId

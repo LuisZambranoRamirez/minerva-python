@@ -419,3 +419,45 @@ class ProductService(Service):
 
 
         return products
+
+
+    def find_all_inventory_losses(
+        self
+    ) -> list[InventoryLoss]:
+
+        if self.get_user_role.lacks_permission(
+            Permission.PRODUCT_FIND_ALL
+        ):
+            raise UnauthorizedActionException(
+                "El usuario no tiene permiso para listar pérdidas de inventario."
+            )
+
+        inventory_losses = self._product_repository.find_all_inventory_losses()
+
+        self._register_user_action(
+            Permission.PRODUCT_FIND_ALL,
+            AllId()
+        )
+
+        return inventory_losses
+
+
+    def find_all_product_returns(
+        self
+    ) -> list[ProductReturn]:
+
+        if self.get_user_role.lacks_permission(
+            Permission.PRODUCT_FIND_ALL
+        ):
+            raise UnauthorizedActionException(
+                "El usuario no tiene permiso para listar devoluciones de producto."
+            )
+
+        product_returns = self._product_repository.find_all_product_returns()
+
+        self._register_user_action(
+            Permission.PRODUCT_FIND_ALL,
+            AllId()
+        )
+
+        return product_returns

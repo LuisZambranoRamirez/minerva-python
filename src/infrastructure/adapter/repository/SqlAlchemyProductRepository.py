@@ -258,6 +258,32 @@ class SqlAlchemyProductRepository(ProductRepository):
         ]
 
 
+    def find_all_inventory_losses(self) -> List[DomainInventoryLoss]:
+        losses = (
+            self.session
+            .query(InventoryLossModel)
+            .all()
+        )
+
+        return [
+            self._inventory_loss_to_domain(loss)
+            for loss in losses
+        ]
+
+
+    def find_all_product_returns(self) -> List[DomainProductReturn]:
+        returns = (
+            self.session
+            .query(ProductReturnModel)
+            .all()
+        )
+
+        return [
+            self._product_return_to_domain(product_return)
+            for product_return in returns
+        ]
+
+
     def find_all_entries_by_product_id(
         self,
         id: ProductId
@@ -334,3 +360,39 @@ class SqlAlchemyProductRepository(ProductRepository):
             registration_date=model.registrationdate,
             expiration_date=model.expirationdate
         )
+
+
+    def _inventory_loss_to_domain(
+        self,
+        model: InventoryLossModel
+    ) -> DomainInventoryLoss:
+
+        loss = DomainInventoryLoss(
+            ProductName(model.productnameid),
+            ProductQuantity(model.quantity),
+            model.reason,
+            model.observation,
+        )
+        loss._registration_date = model.registrationdate
+        return loss
+
+
+    def _product_return_to_domain(
+        self,
+        model: ProductReturnModel
+    ) -> DomainProductReturn:
+
+        product_name_value = (
+            model.saledetail.productnameid
+            if model.saledetail is not None
+            else "SIN_PRODUCTO"
+        )
+
+        product_return = DomainProductReturn(
+            ProductName(product_name_value),
+            ProductQuantity(model.quantity),
+            model.reason,
+            model.saledetailid,
+        )
+        product_return._registration_date = model.registrationdate
+        return product_return

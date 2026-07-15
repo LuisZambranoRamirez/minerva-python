@@ -117,3 +117,19 @@ Authorization: Bearer {{token.response.body.access_token}}
 
 GET {{baseUrl}}/products
 Authorization: Bearer {{token.response.body.access_token}}
+
+
+########################################################
+# Obtener todas las pérdidas de inventario
+########################################################
+
+GET {{baseUrl}}/products/inventory-loss
+Authorization: Bearer {{token.response.body.access_token}}
+
+
+########################################################
+# Obtener todas las devoluciones de producto
+########################################################
+
+GET {{baseUrl}}/products/product-return
+Authorization: Bearer {{token.response.body.access_token}}

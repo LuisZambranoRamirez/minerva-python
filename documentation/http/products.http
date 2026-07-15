@@ -60,6 +60,40 @@ Content-Type: application/json
 
 
 ########################################################
+# Registrar pérdida de inventario
+########################################################
+
+POST {{baseUrl}}/products/inventory-loss
+Authorization: Bearer {{token.response.body.access_token}}
+Content-Type: application/json
+
+{
+  "product_name": "Coca Cola 500ml",
+  "quantity": 3,
+  "reason": "DAÑADO",
+  "observation": "Producto golpeado durante el traslado"
+}
+
+
+
+########################################################
+# Registrar devolución de producto
+########################################################
+
+POST {{baseUrl}}/products/product-return
+Authorization: Bearer {{token.response.body.access_token}}
+Content-Type: application/json
+
+{
+  "product_name": "Coca Cola 500ml",
+  "quantity": 2,
+  "reason": "EQUIVOCACION",
+  "sale_detail_id": null
+}
+
+
+
+########################################################
 # Buscar producto por nombre
 ########################################################
 

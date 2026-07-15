@@ -1,8 +1,10 @@
 from abc import ABC, abstractmethod
 from typing import List, Optional, Set
 
+from domain.entities.product.InventoryLoss import InventoryLoss
 from domain.entities.product.Product import Product
 from domain.entities.product.ProductId import ProductId
+from domain.entities.sale.ProductReturn import ProductReturn
 from domain.entities.stockEntry.StockEntry import StockEntry
 from domain.valueObject.BarCode import BarCode
 from domain.valueObject.ProductQuantity import ProductQuantity
@@ -40,6 +42,22 @@ class ProductRepository(ABC):
         unit_product_name: ProductName,
         bulk_product_name: ProductName,
         quantity: ProductQuantity
+    ) -> None:
+        pass
+
+    @abstractmethod
+    def save_inventory_loss(
+        self,
+        inventory_loss: InventoryLoss,
+        product: Product
+    ) -> None:
+        pass
+
+    @abstractmethod
+    def save_product_return(
+        self,
+        product_return: ProductReturn,
+        product: Product
     ) -> None:
         pass
 

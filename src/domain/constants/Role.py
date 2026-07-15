@@ -34,6 +34,8 @@ class Role(str, Enum):
                 return {
                     Permission.PRODUCT_REGISTER,
                     Permission.PRODUCT_REGISTER_STOCK_ENTRY,
+                    Permission.PRODUCT_REGISTER_INVENTORY_LOSS,
+                    Permission.PRODUCT_REGISTER_PRODUCT_RETURN,
                     Permission.PRODUCT_ASSOCIATE_UNIT_TO_BULK,
                     Permission.PRODUCT_FIND_BY_ID,
                     Permission.PRODUCT_FIND_BY_BAR_CODE,

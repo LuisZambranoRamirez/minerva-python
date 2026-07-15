@@ -5,9 +5,13 @@ from typing import Optional
 from domain.constants.Category import Category
 from domain.constants.GainStrategy import GainStrategy
 from domain.constants.Permission import Permission
+from domain.constants.ReasonProductLoss import ReasonProductLoss
+from domain.constants.ReasonProductReturn import ReasonProductReturn
 from domain.constants.Role import Role
 from domain.constants.SaleType import SaleType
+from domain.entities.product.InventoryLoss import InventoryLoss
 from domain.entities.product.Product import Product
+from domain.entities.sale.ProductReturn import ProductReturn
 from domain.entities.stockEntry.StockEntry import StockEntry
 from domain.entities.result.Result import Result
 from domain.exceptions.DomainException import DomainException
@@ -215,6 +219,115 @@ class ProductService(Service):
 
         return Result.success(None)
 
+
+    def register_inventory_loss(
+        self,
+        product_name: str,
+        quantity: Decimal,
+        reason: ReasonProductLoss,
+        observation: Optional[str]
+    ) -> Result[None]:
+
+        if self.get_user_role.lacks_permission(
+            Permission.PRODUCT_REGISTER_INVENTORY_LOSS
+        ):
+            raise UnauthorizedActionException(
+                "El usuario no tiene permiso para registrar pérdidas de inventario."
+            )
+
+        try:
+            inventory_loss = InventoryLoss(
+                ProductName(product_name),
+                ProductQuantity(quantity),
+                reason,
+                observation
+            )
+
+            product = self._product_repository.find_by_id(
+                ProductName(product_name)
+            )
+
+        except DomainException as e:
+            return Result.failure(str(e))
+
+        if product is None:
+            return Result.failure(
+                "El producto no esta registrado."
+            )
+
+        result = product.process_inventory_loss(
+            inventory_loss.quantity.value
+        )
+
+        if result.is_failure():
+            return result
+
+        self._product_repository.save_inventory_loss(
+            inventory_loss,
+            product
+        )
+
+        self._register_user_action(
+            Permission.PRODUCT_REGISTER_INVENTORY_LOSS,
+            inventory_loss.id
+        )
+
+        return Result.success(None)
+
+
+    def register_product_return(
+        self,
+        product_name: str,
+        quantity: Decimal,
+        reason: ReasonProductReturn,
+        sale_detail_id: Optional[str] = None
+    ) -> Result[None]:
+
+        if self.get_user_role.lacks_permission(
+            Permission.PRODUCT_REGISTER_PRODUCT_RETURN
+        ):
+            raise UnauthorizedActionException(
+                "El usuario no tiene permiso para registrar devoluciones de producto."
+            )
+
+        try:
+            product_return = ProductReturn(
+                ProductName(product_name),
+                ProductQuantity(quantity),
+                reason,
+                sale_detail_id
+            )
+
+            product = self._product_repository.find_by_id(
+                ProductName(product_name)
+            )
+
+        except DomainException as e:
+            return Result.failure(str(e))
+
+        if product is None:
+            return Result.failure(
+                "El producto no esta registrado."
+            )
+
+        result = product.process_product_return(
+            product_return.quantity.value
+        )
+
+        if result.is_failure():
+            return result
+
+        self._product_repository.save_product_return(
+            product_return,
+            product
+        )
+
+        self._register_user_action(
+            Permission.PRODUCT_REGISTER_PRODUCT_RETURN,
+            product_return.id
+        )
+
+        return Result.success(None)
 
 
     # --------------------- READ ---------------------

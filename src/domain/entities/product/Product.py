@@ -174,6 +174,18 @@ class Product(Entity[ProductId]):
     ) -> Result[None]:
         return self._decrease_stock(quantity)
 
+    def process_inventory_loss(
+        self,
+        quantity: Decimal
+    ) -> Result[None]:
+        return self._decrease_stock(quantity)
+
+    def process_product_return(
+        self,
+        quantity: Decimal
+    ) -> Result[None]:
+        return self._increase_stock(quantity)
+
     def _increase_stock(
         self,
         quantity_to_add: Decimal

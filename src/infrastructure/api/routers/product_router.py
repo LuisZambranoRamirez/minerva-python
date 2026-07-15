@@ -7,6 +7,8 @@ from pydantic import BaseModel
 
 from domain.constants.Category import Category
 from domain.constants.GainStrategy import GainStrategy
+from domain.constants.ReasonProductLoss import ReasonProductLoss
+from domain.constants.ReasonProductReturn import ReasonProductReturn
 from domain.constants.SaleType import SaleType
 
 from domain.repositories.UserRepository import UserRepository
@@ -57,6 +59,19 @@ class RegisterStockEntryRequest(BaseModel):
     quantity: Decimal
     expiration_date: datetime
 
+
+class RegisterInventoryLossRequest(BaseModel):
+    product_name: str
+    quantity: Decimal
+    reason: ReasonProductLoss
+    observation: Optional[str] = None
+
+
+class RegisterProductReturnRequest(BaseModel):
+    product_name: str
+    quantity: Decimal
+    reason: ReasonProductReturn
+    sale_detail_id: Optional[str] = None
 
 
 # =========================
@@ -162,6 +177,63 @@ def register_stock_entry(
         "message": "Entrada de stock registrada correctamente."
     }
 
+
+@router.post(
+    "/inventory-loss",
+    status_code=status.HTTP_201_CREATED
+)
+def register_inventory_loss(
+    request: RegisterInventoryLossRequest,
+    service: ProductService = Depends(
+        get_product_service_with_user
+    ),
+):
+
+    result = service.register_inventory_loss(
+        product_name=request.product_name,
+        quantity=request.quantity,
+        reason=request.reason,
+        observation=request.observation,
+    )
+
+    if result.is_failure():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=result.get_message(),
+        )
+
+    return {
+        "message": "Pérdida de inventario registrada correctamente."
+    }
+
+
+@router.post(
+    "/product-return",
+    status_code=status.HTTP_201_CREATED
+)
+def register_product_return(
+    request: RegisterProductReturnRequest,
+    service: ProductService = Depends(
+        get_product_service_with_user
+    ),
+):
+
+    result = service.register_product_return(
+        product_name=request.product_name,
+        quantity=request.quantity,
+        reason=request.reason,
+        sale_detail_id=request.sale_detail_id,
+    )
+
+    if result.is_failure():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=result.get_message(),
+        )
+
+    return {
+        "message": "Devolución de producto registrada correctamente."
+    }
 
 
 # =========================

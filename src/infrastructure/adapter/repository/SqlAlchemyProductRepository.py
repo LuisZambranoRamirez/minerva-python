@@ -1,5 +1,7 @@
+from domain.entities.product.InventoryLoss import InventoryLoss as DomainInventoryLoss
 from domain.entities.product.Product import Product as DomainProduct
 from domain.entities.product.ProductId import ProductId
+from domain.entities.sale.ProductReturn import ProductReturn as DomainProductReturn
 from domain.entities.stockEntry.StockEntry import StockEntry as DomainStockEntry
 
 from domain.repositories.ProductRepository import ProductRepository
@@ -9,7 +11,9 @@ from domain.valueObject.ProductQuantity import ProductQuantity
 from domain.valueObject.id.ProductName import ProductName
 
 from infrastructure.persistence.models import (
+    Inventoryloss as InventoryLossModel,
     Product as ProductModel,
+    Productreturn as ProductReturnModel,
     Stockentry as StockEntryModel,
     Unittobulk as UnitToBulkModel
 )
@@ -127,6 +131,46 @@ class SqlAlchemyProductRepository(ProductRepository):
         )
 
         self.session.add(model)
+        self.session.commit()
+
+
+    def save_inventory_loss(
+        self,
+        inventory_loss: DomainInventoryLoss,
+        product: DomainProduct
+    ) -> None:
+
+        model = InventoryLossModel(
+            inventorylossid=inventory_loss.id.as_string(),
+            productnameid=inventory_loss.product_name.value,
+            quantity=inventory_loss.quantity.value,
+            reason=inventory_loss.reason,
+            registrationdate=inventory_loss.registration_date,
+            observation=inventory_loss.observation
+        )
+
+        self.session.add(model)
+        self.save(product)
+        self.session.commit()
+
+
+    def save_product_return(
+        self,
+        product_return: DomainProductReturn,
+        product: DomainProduct
+    ) -> None:
+
+        if product_return.sale_detail_id is not None:
+            model = ProductReturnModel(
+                productreturnid=product_return.id.as_string(),
+                saledetailid=product_return.sale_detail_id,
+                quantity=product_return.quantity.value,
+                reason=product_return.reason,
+                registrationdate=product_return.registration_date
+            )
+            self.session.add(model)
+
+        self.save(product)
         self.session.commit()
 
 

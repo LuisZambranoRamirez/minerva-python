@@ -4,6 +4,7 @@
 
 ```powershell
 python -m venv venv
+python3 -m venv .venv
 ```
 
 ## 2. Activar el entorno virtual
@@ -12,6 +13,7 @@ En Windows (PowerShell):
 
 ```powershell
 .\venv\Scripts\Activate
+source .venv/bin/activate
 ```
 
 ## 3. Instalar dependencias
@@ -23,6 +25,7 @@ pip install -r requirements.txt
 ## 4. Ejecutar el proyecto
 
 ```powershell
+export PYTHONPATH=src
 uvicorn src.main:app --reload
 ```
 
